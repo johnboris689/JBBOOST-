@@ -7,7 +7,8 @@ import dotenv from 'dotenv';
 import multer from 'multer';
 import bcrypt from 'bcryptjs';
 import { GoogleGenAI } from '@google/genai';
-import { initDb, getRow, getAllRows, execute } from './db';
+import { initDb, getRow, getAllRows, execute, withTransaction } from './db';
+import { PROVIDER, SUPPORTED, syncProviderCatalogue, synchronizeOpenOrders, getProviderBalance, submitProviderOrder, requestProviderRefill, getProviderRefillStatus, cancelProviderOrders, validateTarget, targetType, targetLabel, servicePriceCoins, usdNgnRate, providerStatusMap } from './server/fulfillmentProvider';
 import { sendEmail, sendSms } from './email_sms_service';
 import { paymentManager, PaymentProviderName } from './server/payments/index';
 
@@ -4912,150 +4913,322 @@ app.post('/api/admin/users/delete', authenticateAdminToken, async (req, res) => 
 });
 
 
-// -------------------- JB BOOST SOCIAL SERVICES --------------------
-function socialTargetType(serviceName: string, platform: string) {
-  const name = `${platform} ${serviceName}`.toLowerCase();
-  return /follower|subscriber|member|members/.test(name) ? 'profile' : 'post';
+// -------------------- JB BOOST FULFILLMENT PROVIDER --------------------
+function normalizeSocialPlatform(platform: string) {
+  const p = String(platform || '').trim().toLowerCase();
+  if (p === 'twitter' || p === 'x/twitter') return 'X';
+  return p.charAt(0).toUpperCase() + p.slice(1);
 }
 
-function socialTargetLabel(serviceName: string, platform: string) {
-  const type = socialTargetType(serviceName, platform);
-  const p = platform.toLowerCase();
-  if (type === 'profile') {
-    if (p === 'youtube') return 'Target channel URL or @handle';
-    if (p === 'telegram') return 'Target channel/group link or @username';
-    return 'Target profile URL or @username';
-  }
-  if (p === 'youtube') return 'Target video URL';
-  if (p === 'tiktok') return 'Target video/post URL';
-  if (p === 'instagram') return 'Target post/reel URL';
-  if (p === 'facebook') return 'Target post URL';
-  if (p === 'x') return 'Target post URL';
-  if (p === 'telegram') return 'Target post/message URL';
-  return 'Target post URL';
-}
-
-function socialOrderView(x: any) {
+function socialOrderView(x: any, includeProviderFinancials = false) {
   const quantity = Number(x.quantity || 0);
   const delivered = Math.max(0, Math.min(quantity, Number(x.deliveredquantity ?? x.deliveredQuantity ?? 0)));
-  const remaining = Math.max(0, quantity - delivered);
+  const remaining = Math.max(0, Math.min(quantity, Number(x.remainingquantity ?? x.remainingQuantity ?? quantity - delivered)));
+  const customerCoins = Number(x.customercoins ?? x.customerCoins ?? Math.round(Number(x.amount || 0) * 2));
   return {
-    ...x,
+    id: x.id,
+    userEmail: x.useremail ?? x.userEmail,
+    serviceId: x.serviceid ?? x.serviceId,
+    serviceName: x.servicename ?? x.serviceName,
+    platform: x.platform,
     quantity,
-    amount: Number(x.amount || 0),
+    targetUrl: x.targeturl ?? x.targetUrl,
+    amount: Number(x.amount || customerCoins / 2),
+    customerCoins,
+    provider: x.provider || 'smm_pwr',
+    providerOrderId: x.providerorderid ?? x.providerOrderId ?? '',
+    providerStatus: x.providerstatus ?? x.providerStatus ?? '',
+    ...(includeProviderFinancials ? {
+      providerServiceId: x.providerserviceid ?? x.providerServiceId ?? '',
+      providerCharge: Number(x.providercharge ?? x.providerCharge ?? 0),
+      providerCurrency: x.providercurrency ?? x.providerCurrency ?? 'USD',
+      profit: Number(x.profit || 0),
+      exchangeRate: Number(x.exchangerate ?? x.exchangeRate ?? 0),
+      providerError: x.providererror ?? x.providerError ?? '',
+    } : {}),
     targetType: x.targettype ?? x.targetType ?? 'post',
     openedAt: x.openedat ?? x.openedAt ?? x.createdat ?? x.createdAt ?? null,
     expectedCompleteAt: x.expectedcompleteat ?? x.expectedCompleteAt ?? null,
     startCount: Number(x.startcount ?? x.startCount ?? 0),
     deliveredQuantity: delivered,
     remainingQuantity: remaining,
+    progressPercent: quantity > 0 ? Number(((delivered / quantity) * 100).toFixed(2)) : 0,
     lastProgressAt: x.lastprogressat ?? x.lastProgressAt ?? null,
+    lastProviderSyncAt: x.lastprovidersyncat ?? x.lastProviderSyncAt ?? null,
     completedAt: x.completedat ?? x.completedAt ?? null,
+    refillAvailable: Boolean(Number(x.refillavailable ?? x.refillAvailable ?? 0)),
+    cancelAvailable: Boolean(Number(x.cancelavailable ?? x.cancelAvailable ?? 0)),
+    failureReason: x.failurereason ?? x.failureReason ?? '',
+    refundApplied: Boolean(Number(x.refundapplied ?? x.refundApplied ?? 0)),
   };
 }
 
-app.get('/api/social/services', async (req:any,res:any)=>{
+app.get('/api/social/services', async (req: any, res) => {
   try {
-    const platform=String(req.query?.platform||'').trim();
-    const rows=platform
-      ? await getAllRows(`SELECT * FROM social_services WHERE enabled=1 AND LOWER(platform)=LOWER($1) ORDER BY platform,name`,[platform])
-      : await getAllRows(`SELECT * FROM social_services WHERE enabled=1 ORDER BY platform,name`);
-    res.json(rows.map((x:any)=>({
-      ...x,
-      ratePer1000:Number(x.rateper1000??x.ratePer1000??0),
-      minQuantity:Number(x.minquantity??x.minQuantity??0),
-      maxQuantity:Number(x.maxquantity??x.maxQuantity??0),
-      estimatedMinutes:Number(x.estimatedminutes??x.estimatedMinutes??1440),
-      targetType:socialTargetType(String(x.name||''),String(x.platform||'')),
-      targetLabel:socialTargetLabel(String(x.name||''),String(x.platform||'')),
-      enabled:Boolean(Number(x.enabled??1))
-    })));
-  }catch(e:any){res.status(500).json({error:e.message||'Failed to load social services.'})}
+    const platform = normalizeSocialPlatform(String(req.query?.platform || ''));
+    const params: any[] = [];
+    let sql = `SELECT ss.*, ps.providerStatus, ps.isAvailable AS providerIsAvailable, ps.ratePer1000 AS providerRatePer1000, ps.providerServiceId AS liveProviderServiceId
+      FROM social_services ss LEFT JOIN provider_services ps ON ps.provider=ss.provider AND ps.providerServiceId=ss.providerServiceId
+      WHERE ss.enabled=1 AND ss.providerAvailable=1 AND ps.isAvailable=1`;
+    if (platform && platform !== 'All') { params.push(platform); sql += ` AND LOWER(ss.platform)=LOWER($1)`; }
+    sql += ` ORDER BY ss.platform, ss.name`;
+    const rows = await getAllRows(sql, params);
+    res.json(rows.map((x: any) => {
+      const name = String(x.name || '');
+      const p = String(x.platform || '');
+      const customerCoinsPer1000 = Number(x.customercoinsper1000 ?? x.customerCoinsPer1000 ?? 0);
+      return {
+        id: x.id,
+        platform: p,
+        name,
+        description: x.description || x.providerdescription || x.providerDescription || '',
+        customerCoinsPer1000,
+        ratePer1000: customerCoinsPer1000 / 2,
+        minQuantity: Number(x.minquantity ?? x.minQuantity ?? 0),
+        maxQuantity: Number(x.maxquantity ?? x.maxQuantity ?? 0),
+        estimatedMinutes: Number(x.estimatedminutes ?? x.estimatedMinutes ?? 0),
+        targetType: targetType(name, p),
+        targetLabel: targetLabel(name, p),
+        refillAvailable: Boolean(Number(x.refillavailable ?? x.refillAvailable ?? 0)),
+        cancelAvailable: Boolean(Number(x.cancelavailable ?? x.cancelAvailable ?? 0)),
+        dripfeedAvailable: Boolean(Number(x.dripfeedavailable ?? x.dripfeedAvailable ?? 0)),
+        enabled: true,
+      };
+    }))
+  } catch (e: any) { res.status(500).json({ error: e.message || 'Failed to load fulfillment services.' }); }
 });
 
-app.get('/api/social/orders', authenticateToken, async (req:any,res:any)=>{
-  try{
-    const rows=await getAllRows(`SELECT * FROM social_orders WHERE LOWER(userEmail)=LOWER($1) ORDER BY createdAt DESC`,[String(req.userEmail).toLowerCase()]);
+app.get('/api/social/orders', authenticateToken, async (req: any, res) => {
+  try {
+    const rows = await getAllRows(`SELECT * FROM social_orders WHERE LOWER(userEmail)=LOWER($1) ORDER BY createdAt DESC`, [String(req.userEmail).toLowerCase()]);
     res.json(rows.map(socialOrderView));
-  }catch(e:any){res.status(500).json({error:e.message})}
+  } catch (e: any) { res.status(500).json({ error: e.message || 'Failed to load orders.' }); }
 });
 
-app.get('/api/social/orders/:id', authenticateToken, async (req:any,res:any)=>{
-  try{
-    const row=await getRow(`SELECT * FROM social_orders WHERE id=$1 AND LOWER(userEmail)=LOWER($2)`,[req.params.id,String(req.userEmail).toLowerCase()]);
-    if(!row)return res.status(404).json({error:'Order not found.'});
+app.get('/api/social/orders/:id', authenticateToken, async (req: any, res) => {
+  try {
+    const row = await getRow(`SELECT * FROM social_orders WHERE id=$1 AND LOWER(userEmail)=LOWER($2)`, [req.params.id, String(req.userEmail).toLowerCase()]);
+    if (!row) return res.status(404).json({ error: 'Order not found.' });
     res.json(socialOrderView(row));
-  }catch(e:any){res.status(500).json({error:e.message||'Unable to load order.'})}
+  } catch (e: any) { res.status(500).json({ error: e.message || 'Unable to load order.' }); }
 });
 
-app.post('/api/social/orders', authenticateToken, async (req:any,res:any)=>{
-  try{
-    const email=String(req.userEmail).toLowerCase();
-    const serviceId=String(req.body?.serviceId||'').trim();
-    const quantity=Math.floor(Number(req.body?.quantity||0));
-    const targetUrl=String(req.body?.targetUrl||'').trim();
-    if(!serviceId||!quantity||!targetUrl) return res.status(400).json({error:'Service, quantity and target are required.'});
-    const service=await getRow(`SELECT * FROM social_services WHERE id=$1 AND enabled=1`,[serviceId]);
-    if(!service)return res.status(404).json({error:'Service not found or unavailable.'});
-    const min=Number(service.minquantity??service.minQuantity??0),max=Number(service.maxquantity??service.maxQuantity??0);
-    if(quantity<min||quantity>max)return res.status(400).json({error:`Quantity must be between ${min.toLocaleString()} and ${max.toLocaleString()}.`});
-    const platform=String(service.platform||'');
-    const serviceName=String(service.name||'');
-    const targetType=socialTargetType(serviceName,platform);
-    const isUrl=/^https?:\/\//i.test(targetUrl);
-    const isHandle=/^@[A-Za-z0-9_.-]{2,}$/.test(targetUrl);
-    if(targetType==='profile' ? (!isUrl&&!isHandle) : !isUrl) {
-      return res.status(400).json({error:targetType==='profile' ? socialTargetLabel(serviceName,platform)+' is required.' : socialTargetLabel(serviceName,platform)+' is required.'});
-    }
-    const rate=Number(service.rateper1000??service.ratePer1000??0);
-    const amount=Math.round((quantity/1000)*rate*100)/100;
-    if(amount<=0)return res.status(400).json({error:'Invalid service price.'});
-    const user=await getRow(`SELECT * FROM users WHERE LOWER(email)=LOWER($1)`,[email]);
-    if(!user)return res.status(404).json({error:'User account not found.'});
-    const balance=Number(user.balance||0);
-    if(balance+0.0001<amount)return res.status(400).json({error:`Insufficient balance. You need ₦${amount.toLocaleString()}.`});
-    const id=`ord-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
-    const now=new Date();
-    const nowIso=now.toISOString();
-    const estimatedMinutes=Math.max(1,Number(service.estimatedminutes??service.estimatedMinutes??1440));
-    const expectedCompleteAt=new Date(now.getTime()+estimatedMinutes*60*1000).toISOString();
-    const newBalance=balance-amount;
-    await execute(`UPDATE users SET balance=$1 WHERE LOWER(email)=LOWER($2)`,[newBalance,email]);
-    try{await execute(`UPDATE wallets SET balance=$1 WHERE LOWER(userId)=LOWER($2)`,[newBalance,email])}catch{}
-    await execute(`INSERT INTO social_orders (id,userEmail,serviceId,serviceName,platform,quantity,targetUrl,amount,status,providerOrderId,createdAt,updatedAt,targetType,openedAt,expectedCompleteAt,startCount,deliveredQuantity,remainingQuantity,lastProgressAt,completedAt) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'pending','',$9,$9,$10,$9,$11,0,0,$6,$9,NULL)`,[id,email,service.id,serviceName,platform,quantity,targetUrl,amount,nowIso,targetType,expectedCompleteAt]);
-    try { await execute(`INSERT INTO transactions (id,userId,amount,type,status,reference,timestamp) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT(id) DO NOTHING`, [`tx-${id}`, email, amount, 'social_order', 'pending', id, nowIso]); } catch (txErr) { console.warn('[JB BOOST] Normalized order transaction insert skipped:', txErr); }
-    const db=readDb();const u=db.users.find((x:any)=>String(x.email||'').toLowerCase()===email);if(u){u.balance=newBalance;u.transactions=u.transactions||[];u.transactions.unshift({id:`tx-${Date.now()}`,userId:email,type:'admin_debit',amount,date:nowIso,status:'success',description:`JB BOOST Order — ${serviceName}`,reference:id,balanceBefore:balance,balanceAfter:newBalance});u.notifications=u.notifications||[];u.notifications.unshift({id:`notif-${Date.now()}`,title:'Order Created',body:`Your ${serviceName} order has been created.`,date:nowIso,unread:true,type:'order'});await writeDb(db)}
-    res.json({success:true,order:socialOrderView({id,userEmail:email,serviceId:service.id,serviceName,platform,quantity,targetUrl,amount,status:'pending',createdAt:nowIso,updatedAt:nowIso,targetType,openedAt:nowIso,expectedCompleteAt,startCount:0,deliveredQuantity:0,remainingQuantity:quantity}),balance:newBalance});
-  }catch(e:any){console.error('[JB BOOST Order]',e);res.status(400).json({error:e.message||'Could not create order.'})}
-});
-
-app.get('/api/admin/social/services', authenticateAdminToken, async (_req,res)=>{
-  try{const rows=await getAllRows(`SELECT * FROM social_services ORDER BY platform,name`);res.json(rows.map((x:any)=>({...x,ratePer1000:Number(x.rateper1000??x.ratePer1000??0),minQuantity:Number(x.minquantity??x.minQuantity??0),maxQuantity:Number(x.maxquantity??x.maxQuantity??0),estimatedMinutes:Number(x.estimatedminutes??x.estimatedMinutes??1440),enabled:Boolean(Number(x.enabled??1))})));}catch(e:any){res.status(500).json({error:e.message})}
-});
-app.post('/api/admin/social/services', authenticateAdminToken, async (req,res)=>{
-  try{const b=req.body||{};const id=`svc-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;if(!b.platform||!b.name||!Number.isFinite(Number(b.ratePer1000))||!Number.isFinite(Number(b.minQuantity))||!Number.isFinite(Number(b.maxQuantity)))return res.status(400).json({error:'Platform, name, rate, minimum and maximum are required.'});await execute(`INSERT INTO social_services (id,platform,name,description,ratePer1000,minQuantity,maxQuantity,enabled,createdAt,estimatedMinutes) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,[id,String(b.platform),String(b.name),String(b.description||''),Number(b.ratePer1000),Number(b.minQuantity),Number(b.maxQuantity),b.enabled===false?0:1,new Date().toISOString(),Math.max(1,Number(b.estimatedMinutes||1440))]);res.json({success:true,id});}catch(e:any){res.status(400).json({error:e.message})}
-});
-app.put('/api/admin/social/services/:id', authenticateAdminToken, async (req,res)=>{
-  try{const b=req.body||{};await execute(`UPDATE social_services SET platform=$1,name=$2,description=$3,ratePer1000=$4,minQuantity=$5,maxQuantity=$6,enabled=$7,estimatedMinutes=$8 WHERE id=$9`,[String(b.platform),String(b.name),String(b.description||''),Number(b.ratePer1000),Number(b.minQuantity),Number(b.maxQuantity),b.enabled===false?0:1,Math.max(1,Number(b.estimatedMinutes||1440)),req.params.id]);res.json({success:true});}catch(e:any){res.status(400).json({error:e.message})}
-});
-app.delete('/api/admin/social/services/:id', authenticateAdminToken, async (req,res)=>{try{await execute(`DELETE FROM social_services WHERE id=$1`,[req.params.id]);res.json({success:true})}catch(e:any){res.status(400).json({error:e.message})}});
-app.get('/api/admin/social/orders', authenticateAdminToken, async (_req,res)=>{try{const rows=await getAllRows(`SELECT * FROM social_orders ORDER BY createdAt DESC`);res.json(rows.map(socialOrderView))}catch(e:any){res.status(500).json({error:e.message})}});
-app.patch('/api/admin/social/orders/:id', authenticateAdminToken, async (req,res)=>{
-  try{
-    const status=String(req.body?.status||'pending');
-    if(!['pending','processing','completed','partial','cancelled','failed'].includes(status))return res.status(400).json({error:'Invalid status.'});
-    const existing=await getRow(`SELECT * FROM social_orders WHERE id=$1`,[req.params.id]);
-    if(!existing)return res.status(404).json({error:'Order not found.'});
-    const quantity=Number(existing.quantity||0);
-    let delivered=Math.max(0,Math.min(quantity,Math.floor(Number(req.body?.deliveredQuantity ?? existing.deliveredquantity ?? 0))));
-    if(status==='completed')delivered=quantity;
-    const remaining=Math.max(0,quantity-delivered);
+app.post('/api/social/orders/:id/refill', authenticateToken, async (req:any,res)=>{
+  try {
+    const email=String(req.userEmail||'').toLowerCase();
+    const row=await getRow(`SELECT so.*,po.providerOrderId FROM social_orders so JOIN provider_orders po ON po.internalOrderId=so.id WHERE so.id=$1 AND LOWER(so.userEmail)=LOWER($2)`,[req.params.id,email]);
+    if(!row)return res.status(404).json({error:'Order not found.'});
+    if(!Number(row.refillavailable??0))return res.status(400).json({error:'This service does not support provider refills.'});
+    const existing=await getRow(`SELECT * FROM provider_refills WHERE internalOrderId=$1 AND LOWER(status) IN ('pending','processing','in progress')`,[req.params.id]);
+    if(existing)return res.status(409).json({error:'A refill request is already in progress for this order.'});
+    const result=await requestProviderRefill(String(row.providerorderid||''));
+    const refillId=String(result?.refill||'').trim();
+    if(!refillId)return res.status(400).json({error:String(result?.error||'Provider did not accept the refill request.')});
     const now=new Date().toISOString();
-    const completedAt=status==='completed'?now:null;
-    await execute(`UPDATE social_orders SET status=$1,updatedAt=$2,deliveredQuantity=$3,remainingQuantity=$4,lastProgressAt=$2,completedAt=$5 WHERE id=$6`,[status,now,delivered,remaining,completedAt,req.params.id]);
-    try{await execute(`UPDATE transactions SET status=$1 WHERE reference=$2`,[status,req.params.id])}catch{}
+    await execute(`INSERT INTO provider_refills (id,internalOrderId,provider,providerRefillId,status,requestedAt,rawData) VALUES ($1,$2,$3,$4,'PENDING',$5,$6)`,[`refill-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`,req.params.id,PROVIDER,refillId,now,JSON.stringify(result)]);
+    res.json({success:true,refillId,status:'PENDING'});
+  } catch(e:any){res.status(502).json({error:e.message||'Refill request failed.'})}
+});
+
+app.post('/api/social/orders', authenticateToken, async (req: any, res) => {
+  const email = String(req.userEmail || '').toLowerCase();
+  try {
+    const serviceId = String(req.body?.serviceId || '').trim();
+    const quantity = Math.floor(Number(req.body?.quantity || 0));
+    const target = String(req.body?.targetUrl || '').trim();
+    if (!serviceId || !quantity || !target) return res.status(400).json({ error: 'Service, quantity and target are required.' });
+
+    const service = await getRow(`SELECT ss.*, ps.ratePer1000 AS providerRate, ps.providerServiceId AS liveProviderServiceId, ps.refillAvailable AS liveRefill, ps.cancelAvailable AS liveCancel, ps.isAvailable AS liveAvailable
+      FROM social_services ss LEFT JOIN provider_services ps ON ps.provider=ss.provider AND ps.providerServiceId=ss.providerServiceId
+      WHERE ss.id=$1 AND ss.enabled=1 AND ss.providerAvailable=1 AND ps.isAvailable=1`, [serviceId]);
+    if (!service) return res.status(404).json({ error: 'Service is not currently available from the fulfillment provider.' });
+
+    const min = Number(service.minquantity ?? service.minQuantity ?? 0);
+    const max = Number(service.maxquantity ?? service.maxQuantity ?? 0);
+    if (!Number.isInteger(quantity) || quantity < min || quantity > max) return res.status(400).json({ error: `Quantity must be between ${min.toLocaleString()} and ${max.toLocaleString()}.` });
+
+    const platform = String(service.platform || '');
+    const name = String(service.name || '');
+    const tType = targetType(name, platform);
+    if (!validateTarget(target, tType)) return res.status(400).json({ error: `${targetLabel(name, platform)} is invalid.` });
+
+    const providerServiceId = String(service.liveproviderserviceid ?? service.providerServiceId ?? '').trim();
+    const providerRate = Number(service.providerrate ?? service.rateper1000 ?? 0);
+    const exchangeRate = usdNgnRate();
+    if (!providerServiceId || !(providerRate > 0)) return res.status(503).json({ error: 'This service has no live provider pricing yet. Please try again after the catalogue refresh.' });
+    if (!(exchangeRate > 0)) return res.status(503).json({ error: 'Fulfillment pricing is not configured by the administrator yet.' });
+
+    const markupPercent = Number(service.markuppercent ?? service.markupPercent ?? (process.env.SMM_DEFAULT_MARKUP_PERCENT || 100));
+    const configuredCoinsPer1000 = Number(service.customercoinsper1000 ?? service.customerCoinsPer1000 ?? 0);
+    const coinsPer1000 = configuredCoinsPer1000 > 0 ? configuredCoinsPer1000 : servicePriceCoins(providerRate, markupPercent, exchangeRate);
+    const customerCoins = Math.ceil((quantity / 1000) * coinsPer1000);
+    const customerNaira = customerCoins / 2;
+    if (customerCoins <= 0 || !Number.isFinite(customerCoins)) return res.status(400).json({ error: 'Unable to calculate the service price.' });
+
+    const user = await getRow(`SELECT * FROM users WHERE LOWER(email)=LOWER($1)`, [email]);
+    if (!user) return res.status(404).json({ error: 'User account not found.' });
+    const balance = Number(user.balance || 0);
+    if (balance + 0.000001 < customerNaira) return res.status(400).json({ error: `Insufficient coins. You need ${customerCoins.toLocaleString()} coins (₦${customerNaira.toLocaleString()}).` });
+
+    // Check provider balance before reserving customer funds.
+    let providerBalance: any;
+    try { providerBalance = await getProviderBalance(); } catch (e: any) { return res.status(503).json({ error: 'Fulfillment provider is temporarily unavailable. Your coins were not deducted.' }); }
+    const providerChargeEstimate = (quantity / 1000) * providerRate;
+    if (String(providerBalance.currency).toUpperCase() === 'USD' && Number(providerBalance.balance) < providerChargeEstimate) {
+      return res.status(503).json({ error: 'Fulfillment provider balance is too low for this order. Please try again later.' });
+    }
+
+    const id = `ord-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
+    const now = new Date();
+    const nowIso = now.toISOString();
+    const estimatedMinutes = Number(service.estimatedminutes ?? service.estimatedMinutes ?? 0);
+    const expectedCompleteAt = estimatedMinutes > 0 ? new Date(now.getTime() + estimatedMinutes * 60 * 1000).toISOString() : null;
+    const provider = String(service.provider || 'smm_pwr');
+    const refillAvailable = Number(service.liverefillsavailable ?? service.liveRefill ?? service.refillavailable ?? 0) ? 1 : 0;
+    const cancelAvailable = Number(service.livecancel ?? service.cancelavailable ?? 0) ? 1 : 0;
+
+    // Reserve customer coins atomically. The provider submission happens only after this reservation.
+    await withTransaction(async q => {
+      const locked = await q(`SELECT balance FROM users WHERE LOWER(email)=LOWER($1) FOR UPDATE`, [email]);
+      const current = Number(locked.rows?.[0]?.balance || 0);
+      if (current + 0.000001 < customerNaira) throw new Error('INSUFFICIENT_COINS');
+      await q(`UPDATE users SET balance=$1 WHERE LOWER(email)=LOWER($2)`, [current - customerNaira, email]);
+      await q(`INSERT INTO social_orders (id,userEmail,serviceId,serviceName,platform,quantity,targetUrl,amount,status,providerOrderId,createdAt,updatedAt,targetType,openedAt,expectedCompleteAt,startCount,deliveredQuantity,remainingQuantity,lastProgressAt,completedAt,provider,providerServiceId,customerCoins,providerCharge,providerCurrency,profit,exchangeRate,providerStatus,lastProviderSyncAt,failureReason,refillAvailable,cancelAvailable,refundApplied,submissionAttemptedAt)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'PENDING','',$9,$9,$10,$9,$11,0,0,$6,$9,NULL,$12,$13,$14,$15,$16,$17,$18,$19,NULL,NULL,NULL,$20,$21,0,$9)`,
+        [id,email,service.id,name,platform,quantity,target,customerNaira,nowIso,tType,expectedCompleteAt,provider,providerServiceId,customerCoins,providerChargeEstimate,'USD',customerNaira-providerChargeEstimate*exchangeRate,exchangeRate, 'PENDING',refillAvailable,cancelAvailable]);
+      await q(`INSERT INTO provider_orders (id,internalOrderId,provider,providerOrderId,providerServiceId,providerCharge,providerCurrency,startCount,providerStatus,remainingQuantity,lastSynchronizedAt,error,submissionAttemptedAt,createdAt,updatedAt) VALUES ($1,$2,$3,NULL,$4,$5,'USD',0,'PENDING',$6,NULL,NULL,$7,$7,$7)`, [`po-${id}`,id,provider,providerServiceId,providerChargeEstimate,quantity,nowIso]);
+      await q(`INSERT INTO transactions (id,userId,amount,type,status,reference,timestamp) VALUES ($1,$2,$3,'social_order','pending',$4,$5) ON CONFLICT(id) DO NOTHING`, [`tx-${id}`,email,customerNaira,id,nowIso]);
+    }).catch((e: any) => { if (e?.message === 'INSUFFICIENT_COINS') throw Object.assign(new Error('Insufficient coins.'), { statusCode: 400 }); throw e; });
+
+    let providerOrderId = '';
+    try {
+      providerOrderId = await submitProviderOrder(providerServiceId, target, quantity);
+    } catch (e: any) {
+      // Do not retry automatically: a network timeout can mean the provider accepted the order.
+      const message = String(e?.message || e);
+      const nowFail = new Date().toISOString();
+      const ambiguous = /timeout|timed out|aborted|network|fetch failed|socket/i.test(message);
+      if (ambiguous) {
+        await execute(`UPDATE social_orders SET status='PENDING',providerStatus='SUBMISSION_UNKNOWN',failureReason=$1,updatedAt=$2,submissionAttemptedAt=$2 WHERE id=$3`, [message,nowFail,id]);
+        await execute(`UPDATE provider_orders SET providerStatus='SUBMISSION_UNKNOWN',error=$1,updatedAt=$2 WHERE internalOrderId=$3`, [message,nowFail,id]);
+        return res.status(503).json({ error: 'The provider submission result is uncertain. The order remains protected while the system reconciles it; your coins were not charged twice.', orderId: id });
+      }
+      await execute(`UPDATE social_orders SET status='FAILED',providerStatus='FAILED',failureReason=$1,updatedAt=$2,completedAt=$2,submissionAttemptedAt=$2 WHERE id=$3`, [message,nowFail,id]);
+      await execute(`UPDATE provider_orders SET providerStatus='FAILED',error=$1,updatedAt=$2 WHERE internalOrderId=$3`, [message,nowFail,id]);
+      // Exact-once refund using the same transaction-safe path as later provider failures.
+      const row = await getRow(`SELECT refundApplied FROM social_orders WHERE id=$1`, [id]);
+      if (Number(row?.refundapplied ?? row?.refundApplied ?? 0) === 0) {
+        await withTransaction(async q => {
+          const order = (await q(`SELECT * FROM social_orders WHERE id=$1 FOR UPDATE`, [id])).rows?.[0];
+          if (!order || Number(order.refundapplied ?? 0) === 1) return;
+          const userLocked = (await q(`SELECT balance FROM users WHERE LOWER(email)=LOWER($1) FOR UPDATE`, [email])).rows?.[0];
+          const newBalance = Number(userLocked?.balance || 0) + Number(order.amount || 0);
+          await q(`UPDATE users SET balance=$1 WHERE LOWER(email)=LOWER($2)`, [newBalance,email]);
+          await q(`UPDATE social_orders SET refundApplied=1 WHERE id=$1`, [id]);
+          await q(`INSERT INTO transactions (id,userId,amount,type,status,reference,timestamp) VALUES ($1,$2,$3,'social_order_refund','completed',$4,$5) ON CONFLICT(id) DO NOTHING`, [`refund-${id}`,email,Number(order.amount||0),id,nowFail]);
+        });
+      }
+      return res.status(502).json({ error: `Provider rejected the order: ${message}` });
+    }
+
+    const submittedAt = new Date().toISOString();
+    await withTransaction(async q => {
+      const duplicate = await q(`SELECT id FROM provider_orders WHERE provider=$1 AND providerOrderId=$2`, [PROVIDER,providerOrderId]);
+      if (duplicate.rows?.length) throw new Error('PROVIDER_ORDER_DUPLICATE');
+      await q(`UPDATE social_orders SET providerOrderId=$1,status='PROCESSING',providerStatus='Pending',submissionAttemptedAt=$2,updatedAt=$2 WHERE id=$3`, [providerOrderId,submittedAt,id]);
+      await q(`UPDATE provider_orders SET providerOrderId=$1,providerStatus='Pending',submissionAttemptedAt=$2,updatedAt=$2 WHERE internalOrderId=$3`, [providerOrderId,submittedAt,id]);
+      await q(`UPDATE transactions SET status='processing' WHERE reference=$1`, [id]);
+    });
+
+    const row = await getRow(`SELECT * FROM social_orders WHERE id=$1`, [id]);
+    return res.json({ success: true, order: socialOrderView(row) });
+  } catch (e: any) {
+    console.error('[JB Boster Fulfillment Order]', e);
+    return res.status(Number(e?.statusCode || 400)).json({ error: e?.message || 'Could not create order.' });
+  }
+});
+
+// -------------------- ADMIN FULFILLMENT --------------------
+app.get('/api/admin/fulfillment/services', authenticateAdminToken, async (_req, res) => {
+  try {
+    const rows = await getAllRows(`SELECT ss.*,ps.providerServiceId AS liveProviderServiceId,ps.isAvailable AS providerIsAvailable,ps.ratePer1000 AS providerRatePer1000,ps.refillAvailable AS providerRefill,ps.cancelAvailable AS providerCancel,ps.description AS providerDescription,ps.lastSyncedAt AS providerLastSyncedAt,COALESCE(psm.markupPercent,0) AS markupPercent FROM social_services ss LEFT JOIN provider_service_mappings psm ON psm.socialServiceId=ss.id AND psm.provider=ss.provider LEFT JOIN provider_services ps ON ps.provider=ss.provider AND ps.providerServiceId=ss.providerServiceId ORDER BY ss.platform,ss.name`);
+    res.json(rows.map((x:any)=>({...x,customerCoinsPer1000:Number(x.customercoinsper1000??0),providerRatePer1000:Number(x.providerrateper1000??0),minQuantity:Number(x.minquantity??0),maxQuantity:Number(x.maxquantity??0),enabled:Boolean(Number(x.enabled??0)),providerAvailable:Boolean(Number(x.providerisavailable??0))})));
+  } catch(e:any){res.status(500).json({error:e.message||'Unable to load fulfillment services.'})}
+});
+app.get('/api/admin/fulfillment/catalogue', authenticateAdminToken, async (_req,res)=>{
+  try { const rows=await getAllRows(`SELECT * FROM provider_services WHERE provider=$1 ORDER BY platform,serviceName`,[PROVIDER]); res.json(rows.map((x:any)=>({...x,ratePer1000:Number(x.rateper1000??0),minQuantity:Number(x.minquantity??0),maxQuantity:Number(x.maxquantity??0),isAvailable:Boolean(Number(x.isavailable??0))}))); }
+  catch(e:any){res.status(500).json({error:e.message})}
+});
+app.post('/api/admin/fulfillment/sync', authenticateAdminToken, async (_req,res)=>{
+  try { const result=await syncProviderCatalogue(); res.json({success:true,...result}); } catch(e:any){res.status(502).json({error:e.message||'Provider catalogue synchronization failed.'})}
+});
+app.get('/api/admin/fulfillment/balance', authenticateAdminToken, async (_req,res)=>{
+  try { const result=await getProviderBalance(); res.json(result); } catch(e:any){res.status(502).json({error:e.message||'Unable to retrieve provider balance.'})}
+});
+app.get('/api/admin/fulfillment/orders', authenticateAdminToken, async (_req,res)=>{
+  try { const rows=await getAllRows(`SELECT so.*,po.error AS providerError,po.lastSynchronizedAt AS providerLastSynchronizedAt FROM social_orders so LEFT JOIN provider_orders po ON po.internalOrderId=so.id ORDER BY so.createdAt DESC LIMIT 500`); res.json(rows.map((row:any)=>socialOrderView(row,true))); }
+  catch(e:any){res.status(500).json({error:e.message})}
+});
+app.post('/api/admin/fulfillment/orders/:id/sync', authenticateAdminToken, async (req,res)=>{
+  try { await synchronizeOpenOrders(); const row=await getRow(`SELECT * FROM social_orders WHERE id=$1`,[req.params.id]); if(!row)return res.status(404).json({error:'Order not found.'}); res.json({success:true,order:socialOrderView(row,true)}); }
+  catch(e:any){res.status(502).json({error:e.message||'Order synchronization failed.'})}
+});
+app.post('/api/admin/fulfillment/orders/:id/refill', authenticateAdminToken, async (req,res)=>{
+  try {
+    const row=await getRow(`SELECT so.*,po.providerOrderId FROM social_orders so JOIN provider_orders po ON po.internalOrderId=so.id WHERE so.id=$1`,[req.params.id]);
+    if(!row)return res.status(404).json({error:'Order not found.'});
+    if(!Number(row.refillavailable??0))return res.status(400).json({error:'This service does not support provider refills.'});
+    const result=await requestProviderRefill(String(row.providerorderid||row.providerOrderId));
+    const refillId=String(result?.refill||'').trim();
+    if(!refillId)throw new Error(String(result?.error||'Provider did not return a refill ID.'));
+    const now=new Date().toISOString();
+    await execute(`INSERT INTO provider_refills (id,internalOrderId,provider,providerRefillId,status,requestedAt,rawData) VALUES ($1,$2,$3,$4,'PENDING',$5,$6)`,[`refill-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`,req.params.id,PROVIDER,refillId,now,JSON.stringify(result)]);
+    res.json({success:true,refillId,status:'PENDING'});
+  } catch(e:any){res.status(502).json({error:e.message||'Refill request failed.'})}
+});
+app.post('/api/admin/fulfillment/orders/:id/cancel', authenticateAdminToken, async (req,res)=>{
+  try {
+    const row=await getRow(`SELECT so.*,po.providerOrderId FROM social_orders so JOIN provider_orders po ON po.internalOrderId=so.id WHERE so.id=$1`,[req.params.id]);
+    if(!row)return res.status(404).json({error:'Order not found.'});
+    if(!Number(row.cancelavailable??0))return res.status(400).json({error:'This service does not support provider cancellation.'});
+    const result=await cancelProviderOrders([String(row.providerorderid||row.providerOrderId)]);
+    const first=Array.isArray(result)?result[0]:result;
+    if (first?.cancel?.error || first?.error) return res.status(400).json({error:String(first?.cancel?.error||first?.error)});
+    await execute(`UPDATE social_orders SET providerStatus='Cancel requested',updatedAt=$1 WHERE id=$2`,[new Date().toISOString(),req.params.id]);
+    res.json({success:true,result});
+  } catch(e:any){res.status(502).json({error:e.message||'Cancellation request failed.'})}
+});
+app.patch('/api/admin/fulfillment/services/:id', authenticateAdminToken, async (req,res)=>{
+  try {
+    const b=req.body||{};
+    const enabled=b.enabled===false?0:1;
+    let coins=Number(b.customerCoinsPer1000);
+    const markup=Number.isFinite(Number(b.markupPercent)) ? Number(b.markupPercent) : null;
+    const min=Math.floor(Number(b.minQuantity)); const max=Math.floor(Number(b.maxQuantity));
+    if(markup!==null && markup>=0){ const ps=await getRow(`SELECT ratePer1000 FROM provider_services ps JOIN social_services ss ON ss.provider=ps.provider AND ss.providerServiceId=ps.providerServiceId WHERE ss.id=$1`,[req.params.id]); const fx=usdNgnRate(); if(ps && fx>0) coins=servicePriceCoins(Number(ps.rateper1000||0),markup,fx); }
+    if(!Number.isFinite(coins)||coins<=0||!Number.isInteger(min)||!Number.isInteger(max)||min<1||max<min)return res.status(400).json({error:'Valid customer coin rate, minimum and maximum are required.'});
+    await execute(`UPDATE social_services SET customerCoinsPer1000=$1,minQuantity=$2,maxQuantity=$3,enabled=$4 WHERE id=$5`,[coins,min,max,enabled,req.params.id]);
+    await execute(`UPDATE provider_service_mappings SET customerCoinsPer1000=$1,markupPercent=COALESCE($2,markupPercent),enabled=$3,updatedAt=$4 WHERE socialServiceId=$5`,[coins,markup,enabled,new Date().toISOString(),req.params.id]);
     res.json({success:true});
-  }catch(e:any){res.status(400).json({error:e.message})}
+  } catch(e:any){res.status(400).json({error:e.message||'Unable to update service.'})}
+});
+app.post('/api/admin/fulfillment/mappings', authenticateAdminToken, async (req,res)=>{
+  try {
+    const socialServiceId=String(req.body?.socialServiceId||''); const providerServiceId=String(req.body?.providerServiceId||'');
+    if(!socialServiceId||!providerServiceId)return res.status(400).json({error:'JB Boster service and provider service are required.'});
+    const provider=await getRow(`SELECT * FROM provider_services WHERE provider=$1 AND providerServiceId=$2 AND isAvailable=1`,[PROVIDER,providerServiceId]);
+    if(!provider)return res.status(404).json({error:'Provider service is not currently available.'});
+    const existing=await getRow(`SELECT * FROM social_services WHERE id=$1`,[socialServiceId]);
+    if(!existing)return res.status(404).json({error:'JB Boster service not found.'});
+    const coins=Math.max(1,Number(req.body?.customerCoinsPer1000||existing.customercoinsper1000||0)); const now=new Date().toISOString();
+    await execute(`UPDATE social_services SET providerServiceId=$1,provider=$2,providerAvailable=1,ratePer1000=$3,minQuantity=$4,maxQuantity=$5,refillAvailable=$6,cancelAvailable=$7,dripfeedAvailable=$8,providerDescription=$9,providerLastSyncedAt=$10 WHERE id=$11`,[providerServiceId,PROVIDER,Number(provider.rateper1000||0),Number(provider.minquantity||1),Number(provider.maxquantity||1),Number(provider.refillavailable||0),Number(provider.cancelavailable||0),Number(provider.dripfeedavailable||0),provider.description||'',provider.lastsyncedat||now,socialServiceId]);
+    await execute(`INSERT INTO provider_service_mappings (id,provider,providerServiceId,socialServiceId,customerCoinsPer1000,markupPercent,enabled,createdAt,updatedAt) VALUES ($1,$2,$3,$4,$5,0,1,$6,$6) ON CONFLICT(provider,socialServiceId) DO UPDATE SET providerServiceId=EXCLUDED.providerServiceId,customerCoinsPer1000=EXCLUDED.customerCoinsPer1000,enabled=1,updatedAt=EXCLUDED.updatedAt`,[`map-${PROVIDER}-${socialServiceId}`,PROVIDER,providerServiceId,socialServiceId,coins,now]);
+    res.json({success:true});
+  } catch(e:any){res.status(400).json({error:e.message||'Unable to update provider mapping.'})}
+});
+app.get('/api/admin/fulfillment/refills/:id', authenticateAdminToken, async (req,res)=>{
+  try { const row=await getRow(`SELECT * FROM provider_refills WHERE id=$1`,[req.params.id]); if(!row)return res.status(404).json({error:'Refill not found.'}); const result=await getProviderRefillStatus(String(row.providerrefillid||'')); await execute(`UPDATE provider_refills SET status=$1,completedAt=$2,rawData=$3 WHERE id=$4`,[String(result?.status||'UNKNOWN'),/completed|canceled|cancelled/i.test(String(result?.status||''))?new Date().toISOString():null,JSON.stringify(result),req.params.id]); res.json(result); }
+  catch(e:any){res.status(502).json({error:e.message})}
 });
 
 // Get diagnostic logs
@@ -5150,6 +5323,9 @@ async function initializeDatabaseWithRetry() {
     console.log('[Nevo DB] Starting database initialization...');
     await initDb();
     await loadDbCache();
+    // Start live SMM PWR catalogue/status synchronization only when the server has a provider API key.
+    const providerWorker = await import('./server/fulfillmentProvider');
+    providerWorker.startFulfillmentWorker();
 
     // Restore configured payment provider if saved in admin settings.
     const savedProvider = await getRow(`SELECT value FROM admin_settings WHERE key = $1`, ['payment_provider']);

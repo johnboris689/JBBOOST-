@@ -24,3 +24,14 @@
 - Added a dedicated `nevo` PostgreSQL schema for production data.
 - Removed demo user/admin seeding.
 - Updated project documentation and environment configuration for JB Boster.
+
+## 2026-09-17 — SMM PWR fulfillment integration
+- Added server-side SMM PWR API v2 integration.
+- Added live provider service catalogue synchronization and availability tracking.
+- Added provider mappings, provider order/status/refill/sync audit tables.
+- Replaced hardcoded social-service ordering with live provider-backed ordering.
+- Added atomic coin reservation, provider submission, status reconciliation, and exact-once refunds for final provider failures/cancellations.
+- Added batched provider status synchronization (up to 100 provider order IDs per request).
+- Added target validation by service type and customer-side live coin pricing.
+- Added admin fulfillment controls for catalogue sync, provider balance, mappings, pricing, order sync, refill and cancellation.
+- Kept KoraPay and the existing PostgreSQL database/authentication flow intact.

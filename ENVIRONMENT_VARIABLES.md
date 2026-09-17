@@ -23,3 +23,22 @@ Set these in Render. Never commit live secrets to GitHub.
 JB Boster displays balances in coins. KoraPay payments are processed in NGN; the customer-facing wallet and service prices are displayed in coins. The conversion is fixed at **1,000 coins = ₦500** (2 coins per ₦1).
 
 KoraPay checkout is still processed in NGN because it is the real payment provider. Customer-facing wallet and service pricing are displayed in coins.
+
+## SMM PWR Fulfillment Provider
+
+```text
+SMM_PROVIDER_API_URL=https://smmpwr.com/api/v2
+SMM_PROVIDER_API_KEY=
+```
+
+The SMM PWR API key is server-side only. Never expose it through `VITE_*`, React, browser JavaScript, HTML, API responses, logs, or GitHub.
+
+Required/optional fulfillment configuration:
+
+```text
+SMM_USD_NGN_RATE=
+SMM_DEFAULT_MARKUP_PERCENT=100
+SMM_LOW_BALANCE_THRESHOLD=5
+```
+
+`SMM_USD_NGN_RATE` must be configured with the current USD/NGN conversion used for customer pricing. `SMM_DEFAULT_MARKUP_PERCENT` is only the starting markup for newly imported services; the administrator can set each service's customer coin rate from the admin dashboard.

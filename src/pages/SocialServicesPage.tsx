@@ -55,8 +55,8 @@ export const SocialServicesPage: React.FC = () => {
 
   const targetMeta=selected ? getTargetMeta(selected) : null;
   const numericQty=Number(qty||0);
-  const costNaira = selected && numericQty>0 ? (numericQty/1000)*Number(selected.ratePer1000) : 0;
-  const costCoins = nairaToCoins(costNaira);
+  const costCoins = selected && numericQty>0 ? Math.ceil((numericQty/1000)*Number(selected.customerCoinsPer1000||0)) : 0;
+  const costNaira = coinsToNaira(costCoins);
   const quantityValid=!!selected && numericQty>=Number(selected.minQuantity) && numericQty<=Number(selected.maxQuantity);
   const targetValid=!!target.trim() && (targetMeta?.type==='profile' ? (/^https?:\/\//i.test(target.trim()) || /^@[A-Za-z0-9_.-]{2,}$/.test(target.trim())) : /^https?:\/\//i.test(target.trim()));
 
@@ -76,10 +76,10 @@ export const SocialServicesPage: React.FC = () => {
     {msg && !selected && <div className="p-3 rounded-xl border border-[#a72b50]/30 bg-[#7d1738]/10 text-[#f09ab1] text-xs font-bold">{msg}</div>}
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {loading ? <div className="text-xs text-slate-500">Loading services…</div> : services.length===0 ? <div className="jb-card p-6 text-sm text-slate-400">No services are currently available for {platform}. Check the admin service catalogue.</div> : services.map(s=>{
-        const coinRate=nairaToCoins(Number(s.ratePer1000));
+        const coinRate=Number(s.customerCoinsPer1000||0);
         return <button key={s.id} onClick={()=>{setSelected(s);setMsg('')}} className="jb-card p-4 text-left hover:border-[#a72b50]/60 transition group">
           <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#7d1738]/20 border border-[#a72b50]/20 grid place-items-center text-[#df6f8e]"><PlatformIcon platform={s.platform} className="w-6 h-6"/></div><div className="min-w-0 flex-1"><div className="text-[10px] uppercase tracking-wider text-[#df6f8e] font-black">{s.platform}</div><h3 className="font-black text-sm truncate mt-0.5">{s.name}</h3></div><ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-[#df6f8e]"/></div>
-          <p className="text-xs text-slate-400 mt-3 leading-relaxed">{s.description}</p>
+          <p className="text-xs text-slate-400 mt-3 leading-relaxed">{s.description || s.providerDescription || 'Provider service available now.'}</p><div className="mt-3 flex flex-wrap gap-1.5 text-[9px] font-black">{s.refillAvailable&&<span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-300">Refill</span>}{s.cancelAvailable&&<span className="px-2 py-1 rounded-full bg-amber-500/10 text-amber-300">Cancel</span>}<span className="px-2 py-1 rounded-full bg-white/[.04] text-slate-500">Live provider</span></div>
           <div className="flex justify-between gap-2 mt-4 text-[10px] font-bold"><span className="text-slate-500">Min {Number(s.minQuantity).toLocaleString()}</span><span className="text-[#df6f8e]">{coinRate.toLocaleString()} coins / 1k</span></div>
         </button>
       })}

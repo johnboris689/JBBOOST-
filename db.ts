@@ -688,10 +688,105 @@ export async function initDb() {
   `);
   try { await execute(`ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS walletCreditedAt TEXT`); } catch (e) {}
 
+  await execute(`CREATE TABLE IF NOT EXISTS provider_services (
+    id TEXT PRIMARY KEY,
+    provider TEXT NOT NULL,
+    providerServiceId TEXT NOT NULL,
+    platform TEXT NOT NULL,
+    serviceName TEXT NOT NULL,
+    serviceType TEXT,
+    category TEXT,
+    ratePer1000 REAL NOT NULL DEFAULT 0,
+    minQuantity INTEGER NOT NULL DEFAULT 0,
+    maxQuantity INTEGER NOT NULL DEFAULT 0,
+    refillAvailable INTEGER DEFAULT 0,
+    cancelAvailable INTEGER DEFAULT 0,
+    dripfeedAvailable INTEGER DEFAULT 0,
+    description TEXT,
+    providerStatus TEXT DEFAULT 'available',
+    isAvailable INTEGER DEFAULT 1,
+    rawData TEXT,
+    lastSyncedAt TEXT,
+    UNIQUE(provider, providerServiceId)
+  )`);
+  await execute(`CREATE TABLE IF NOT EXISTS provider_service_mappings (
+    id TEXT PRIMARY KEY,
+    provider TEXT NOT NULL,
+    providerServiceId TEXT NOT NULL,
+    socialServiceId TEXT NOT NULL,
+    customerCoinsPer1000 REAL NOT NULL DEFAULT 0,
+    markupPercent REAL NOT NULL DEFAULT 0,
+    enabled INTEGER DEFAULT 1,
+    createdAt TEXT,
+    updatedAt TEXT,
+    UNIQUE(provider, socialServiceId),
+    UNIQUE(provider, providerServiceId, socialServiceId)
+  )`);
+  await execute(`CREATE TABLE IF NOT EXISTS provider_orders (
+    id TEXT PRIMARY KEY,
+    internalOrderId TEXT NOT NULL UNIQUE,
+    provider TEXT NOT NULL,
+    providerOrderId TEXT,
+    providerServiceId TEXT,
+    providerCharge REAL DEFAULT 0,
+    providerCurrency TEXT,
+    startCount INTEGER DEFAULT 0,
+    providerStatus TEXT,
+    remainingQuantity INTEGER DEFAULT 0,
+    lastSynchronizedAt TEXT,
+    error TEXT,
+    submissionAttemptedAt TEXT,
+    createdAt TEXT,
+    updatedAt TEXT,
+    UNIQUE(provider, providerOrderId)
+  )`);
+  await execute(`CREATE TABLE IF NOT EXISTS provider_order_status_history (
+    id TEXT PRIMARY KEY,
+    internalOrderId TEXT NOT NULL,
+    providerOrderId TEXT,
+    providerStatus TEXT,
+    mappedStatus TEXT,
+    charge REAL DEFAULT 0,
+    startCount INTEGER DEFAULT 0,
+    remains INTEGER DEFAULT 0,
+    currency TEXT,
+    rawData TEXT,
+    createdAt TEXT
+  )`);
+  await execute(`CREATE TABLE IF NOT EXISTS provider_refills (
+    id TEXT PRIMARY KEY,
+    internalOrderId TEXT NOT NULL,
+    provider TEXT NOT NULL,
+    providerRefillId TEXT,
+    status TEXT,
+    requestedAt TEXT,
+    completedAt TEXT,
+    rawData TEXT,
+    UNIQUE(provider, providerRefillId)
+  )`);
+  await execute(`CREATE TABLE IF NOT EXISTS provider_sync_logs (
+    id TEXT PRIMARY KEY,
+    provider TEXT NOT NULL,
+    action TEXT NOT NULL,
+    status TEXT NOT NULL,
+    message TEXT,
+    durationMs INTEGER,
+    createdAt TEXT
+  )`);
   await execute(`CREATE TABLE IF NOT EXISTS social_services (id TEXT PRIMARY KEY, platform TEXT NOT NULL, name TEXT NOT NULL, description TEXT, ratePer1000 REAL NOT NULL, minQuantity INTEGER NOT NULL, maxQuantity INTEGER NOT NULL, enabled INTEGER DEFAULT 1, createdAt TEXT)`);
   await execute(`CREATE TABLE IF NOT EXISTS social_orders (id TEXT PRIMARY KEY, userEmail TEXT NOT NULL, serviceId TEXT NOT NULL, serviceName TEXT NOT NULL, platform TEXT NOT NULL, quantity INTEGER NOT NULL, targetUrl TEXT NOT NULL, amount REAL NOT NULL, status TEXT DEFAULT 'pending', providerOrderId TEXT, createdAt TEXT, updatedAt TEXT)`);
   // Progress/fulfillment metadata used by the customer order-detail view. Existing databases are upgraded safely.
   try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS estimatedMinutes INTEGER DEFAULT 1440`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS providerServiceId TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS provider TEXT DEFAULT 'smm_pwr'`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS customerCoinsPer1000 REAL DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS refillAvailable INTEGER DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS cancelAvailable INTEGER DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS dripfeedAvailable INTEGER DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS providerDescription TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS providerLastSyncedAt TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS providerAvailable INTEGER DEFAULT 1`); } catch (_) {}
+
   try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS targetType TEXT DEFAULT 'post'`); } catch (_) {}
   try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS openedAt TEXT`); } catch (_) {}
   try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS expectedCompleteAt TEXT`); } catch (_) {}
@@ -700,27 +795,25 @@ export async function initDb() {
   try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS remainingQuantity INTEGER DEFAULT 0`); } catch (_) {}
   try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS lastProgressAt TEXT`); } catch (_) {}
   try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS completedAt TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS provider TEXT DEFAULT 'smm_pwr'`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS providerServiceId TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS customerCoins REAL DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS providerCharge REAL DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS providerCurrency TEXT DEFAULT 'USD'`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS profit REAL DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS exchangeRate REAL DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS providerStatus TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS lastProviderSyncAt TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS failureReason TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS refillAvailable INTEGER DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS cancelAvailable INTEGER DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS refundApplied INTEGER DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS submissionAttemptedAt TEXT`); } catch (_) {}
+
   try { await execute(`UPDATE social_services SET estimatedMinutes=1440 WHERE estimatedMinutes IS NULL`); } catch (_) {}
   try { await execute(`UPDATE social_orders SET deliveredQuantity=CASE WHEN LOWER(status)='completed' THEN quantity ELSE COALESCE(deliveredQuantity,0) END, remainingQuantity=CASE WHEN LOWER(status)='completed' THEN 0 ELSE GREATEST(quantity-COALESCE(deliveredQuantity,0),0) END WHERE remainingQuantity IS NULL OR (remainingQuantity=0 AND LOWER(status) NOT IN ('completed','cancelled','failed'))`); } catch (_) {}
-  try { const now=new Date().toISOString(); const seeds=[
-    ['svc-fb-follow','Facebook','Facebook Page Followers','Grow your Facebook page audience.',1200,100,10000],
-    ['svc-fb-like','Facebook','Facebook Page/Post Likes','Increase likes on eligible Facebook pages or posts.',800,100,50000],
-    ['svc-fb-comment','Facebook','Facebook Post Comments','Increase comments on eligible Facebook posts.',1000,10,5000],
-    ['svc-fb-share','Facebook','Facebook Post Shares','Increase shares on eligible Facebook posts.',1100,50,10000],
-    ['svc-ig-follow','Instagram','Instagram Followers','Increase your Instagram followers.',1500,100,10000],
-    ['svc-ig-like','Instagram','Instagram Likes','Increase likes on eligible Instagram posts.',800,100,50000],
-    ['svc-ig-comment','Instagram','Instagram Comments','Increase comments on eligible Instagram posts.',1200,10,5000],
-    ['svc-tt-follow','TikTok','TikTok Followers','Grow your TikTok profile audience.',1800,100,10000],
-    ['svc-tt-like','TikTok','TikTok Likes','Increase likes on eligible TikTok videos.',700,100,50000],
-    ['svc-tt-view','TikTok','TikTok Video Views','Increase views on TikTok videos.',350,1000,1000000],
-    ['svc-yt-view','YouTube','YouTube Views','Increase views on eligible YouTube videos.',2500,100,100000],
-    ['svc-yt-like','YouTube','YouTube Likes','Increase likes on eligible YouTube videos.',1800,100,50000],
-    ['svc-yt-sub','YouTube','YouTube Subscribers','Grow your YouTube channel subscriber count.',5000,100,10000],
-    ['svc-x-follow','X','X Followers','Grow your X profile audience.',1800,100,10000],
-    ['svc-x-like','X','X Post Likes','Increase likes on eligible X posts.',900,100,50000],
-    ['svc-tg-member','Telegram','Telegram Members','Grow eligible Telegram channels or groups.',2200,100,10000],
-    ['svc-tg-view','Telegram','Telegram Post Views','Increase views on eligible Telegram posts.',600,1000,1000000]
-  ]; for(const x of seeds) await execute(`INSERT INTO social_services (id,platform,name,description,ratePer1000,minQuantity,maxQuantity,enabled,createdAt) VALUES ($1,$2,$3,$4,$5,$6,$7,1,$8) ON CONFLICT(id) DO NOTHING`,[...x,now]); } catch(e){ console.warn('[JB BOOST] Social service seed skipped:',e); }
+  // Legacy hardcoded social-service seed data is intentionally not created. Live services come only from the configured provider catalogue.
+  try { await execute(`UPDATE social_services SET enabled=0, providerAvailable=0 WHERE providerServiceId IS NULL`); } catch (_) {}
 
 
   await execute(`
@@ -940,6 +1033,28 @@ export async function initDb() {
 }
 
 // -------------------- QUERY EXECUTION CONTROLLER --------------------
+// -------------------- TRANSACTION CONTROLLER --------------------
+export async function withTransaction<T>(fn: (query: (sql: string, params?: any[]) => Promise<any>) => Promise<T>): Promise<T> {
+  if (!hasPostgresConfig() || !pgPool) {
+    // Production uses PostgreSQL. The JSON fallback cannot provide true transactional
+    // isolation, so execute the callback against the existing controller for local development.
+    return fn((sql, params = []) => execute(sql, params));
+  }
+  const client = await pgPool.connect();
+  try {
+    await client.query('BEGIN');
+    const query = async (sql: string, params: any[] = []) => client.query(sql, params);
+    const result = await fn(query);
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 export function execute(sql: string, params: any[] = []): Promise<any> {
   return new Promise((resolve, reject) => {
     if (hasPostgresConfig()) {
