@@ -1,0 +1,6 @@
+{
+  "name": "SMM Boost Panel",
+  "description": "Production-ready Social Media Marketing panel with Naira (₦) to virtual coins economy, KoraPay integration, service catalog, and full admin management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
