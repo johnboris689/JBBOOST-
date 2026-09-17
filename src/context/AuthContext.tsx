@@ -1,113 +1,132 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '../types/index.ts';
-import { apiRequest, clearTokens, getAccessToken, setTokens } from '../lib/api.ts';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { User, SiteSettings, BankDetails } from '../types';
+import { api, getAuthToken, setAuthToken, removeAuthToken, getAdminToken, setAdminToken, removeAdminToken } from '../lib/api';
 
 interface AuthContextType {
   user: User | null;
+  adminUser: User | null;
+  settings: SiteSettings | null;
+  bankDetails: BankDetails | null;
   loading: boolean;
-  authModalOpen: boolean;
-  authModalTab: 'login' | 'register' | 'forgot' | 'reset';
-  openAuthModal: (tab?: 'login' | 'register' | 'forgot' | 'reset') => void;
-  closeAuthModal: () => void;
-  login: (email: string, password: string, rememberMe?: boolean) => Promise<User>;
-  register: (name: string, email: string, phone?: string, password?: string) => Promise<User>;
-  logout: () => Promise<void>;
+  login: (emailOrUsername: string, password: string) => Promise<void>;
+  register: (payload: { fullName: string; username: string; email: string; phone: string; password: string; referralCode?: string }) => Promise<void>;
+  logout: () => void;
+  adminLogin: (email: string, password: string) => Promise<void>;
+  adminLogout: () => void;
   refreshUser: () => Promise<void>;
-  updateUser: (updated: User) => void;
+  refreshSettings: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [adminUser, setAdminUser] = useState<User | null>(null);
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [bankDetails, setBankDetails] = useState<BankDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
-  const [authModalTab, setAuthModalTab] = useState<'login' | 'register' | 'forgot' | 'reset'>('login');
 
-  const openAuthModal = (tab: 'login' | 'register' | 'forgot' | 'reset' = 'login') => {
-    setAuthModalTab(tab);
-    setAuthModalOpen(true);
-  };
-
-  const closeAuthModal = () => {
-    setAuthModalOpen(false);
-  };
-
-  const refreshUser = async () => {
+  const refreshSettings = useCallback(async () => {
     try {
-      const token = getAccessToken();
-      if (!token) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-      const data = await apiRequest<{ user: User }>('/api/auth/me');
-      setUser(data.user);
-    } catch {
-      setUser(null);
-      clearTokens();
-    } finally {
-      setLoading(false);
+      const [sData, bData] = await Promise.all([
+        api.getSettings().catch(() => null),
+        api.getBankDetails().catch(() => null),
+      ]);
+      if (sData) setSettings(sData);
+      if (bData) setBankDetails(bData);
+    } catch (err) {
+      console.error('Failed loading settings:', err);
     }
-  };
-
-  useEffect(() => {
-    refreshUser();
   }, []);
 
-  const login = async (email: string, password: string, rememberMe: boolean = true): Promise<User> => {
-    const data = await apiRequest<{ user: User; accessToken: string; refreshToken: string }>('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, rememberMe }),
-    });
-
-    setTokens(data.accessToken, data.refreshToken);
-    setUser(data.user);
-    closeAuthModal();
-    return data.user;
-  };
-
-  const register = async (name: string, email: string, phone?: string, password?: string): Promise<User> => {
-    const data = await apiRequest<{ user: User; accessToken: string; refreshToken: string }>('/api/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ name, email, phone, password }),
-    });
-
-    setTokens(data.accessToken, data.refreshToken);
-    setUser(data.user);
-    closeAuthModal();
-    return data.user;
-  };
-
-  const logout = async () => {
+  const refreshUser = useCallback(async () => {
+    const token = getAuthToken();
+    if (!token) {
+      setUser(null);
+      return;
+    }
     try {
-      await apiRequest('/api/auth/logout', { method: 'POST' });
-    } catch {
-      // ignore
-    } finally {
-      clearTokens();
+      const res = await api.getCurrentUser();
+      setUser(res.user);
+    } catch (err) {
+      console.error('Session expired or invalid:', err);
+      removeAuthToken();
       setUser(null);
     }
+  }, []);
+
+  const refreshAdmin = useCallback(async () => {
+    const adminToken = getAdminToken();
+    if (!adminToken) {
+      setAdminUser(null);
+      return;
+    }
+    try {
+      const res = await api.getCurrentUser();
+      if (res.user.isAdmin) {
+        setAdminUser(res.user);
+      } else {
+        removeAdminToken();
+        setAdminUser(null);
+      }
+    } catch (err) {
+      removeAdminToken();
+      setAdminUser(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      await Promise.all([refreshSettings(), refreshUser(), refreshAdmin()]);
+      setLoading(false);
+    };
+    init();
+  }, [refreshSettings, refreshUser, refreshAdmin]);
+
+  const login = async (emailOrUsername: string, password: string) => {
+    const res = await api.login({ emailOrUsername, password });
+    setAuthToken(res.token);
+    setUser(res.user);
   };
 
-  const updateUser = (updated: User) => {
-    setUser(updated);
+  const register = async (payload: { fullName: string; username: string; email: string; phone: string; password: string; referralCode?: string }) => {
+    const res = await api.register(payload);
+    setAuthToken(res.token);
+    setUser(res.user);
+  };
+
+  const logout = () => {
+    removeAuthToken();
+    setUser(null);
+  };
+
+  const adminLogin = async (email: string, password: string) => {
+    const res = await api.adminLogin({ email, password });
+    setAdminToken(res.token);
+    setAdminUser(res.user);
+  };
+
+  const adminLogout = () => {
+    removeAdminToken();
+    setAdminUser(null);
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        adminUser,
+        settings,
+        bankDetails,
         loading,
-        authModalOpen,
-        authModalTab,
-        openAuthModal,
-        closeAuthModal,
         login,
         register,
         logout,
+        adminLogin,
+        adminLogout,
         refreshUser,
-        updateUser,
+        refreshSettings,
       }}
     >
       {children}

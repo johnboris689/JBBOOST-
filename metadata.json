@@ -1,6 +1,6 @@
 {
-  "name": "SMM Boost Panel",
-  "description": "Production-ready Social Media Marketing panel with Naira (₦) to virtual coins economy, KoraPay integration, service catalog, and full admin management.",
+  "name": "JB Boster",
+  "description": "Mobile-first Nigerian rewards and wallet platform for completing tasks, watching rewarded adverts, referrals, verified KoraPay wallet deposits, and eligible withdrawals.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
