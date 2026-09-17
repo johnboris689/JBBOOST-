@@ -113,7 +113,7 @@ export const api = {
     }),
 
   // --- Auth ---
-  register: (payload: { fullName: string; username: string; email: string; phone: string; password: string; referralCode?: string }) =>
+  register: (payload: { fullName: string; username: string; email: string; password: string }) =>
     request<{ user: User; token: string }>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify(payload),

@@ -4193,6 +4193,59 @@ app.post('/api/admin/wdv/verify', async (req, res) => {
   }
 });
 
+// -------------------- USER HISTORY --------------------
+// History is backed by the same persistent database used for the wallet and orders.
+// This route intentionally returns an empty array instead of a 404 when a new account has no activity.
+app.get('/api/wallet/transactions', authenticateToken, async (req: any, res: any) => {
+  try {
+    const email = String(req.userEmail || '').trim().toLowerCase();
+    if (!email) return res.status(401).json({ error: 'Authentication required.' });
+
+    const userRow = await getRow(`SELECT transactions FROM users WHERE LOWER(email)=LOWER($1)`, [email]);
+    let transactions: any[] = [];
+    if (userRow?.transactions) {
+      try {
+        transactions = Array.isArray(userRow.transactions) ? userRow.transactions : JSON.parse(userRow.transactions);
+      } catch { transactions = []; }
+    }
+
+    const paymentRows = await getAllRows(
+      `SELECT id, reference, amount, currency, provider, purpose, status, createdAt, verifiedAt FROM payment_transactions WHERE LOWER(userEmail)=LOWER($1) ORDER BY createdAt DESC LIMIT 100`,
+      [email]
+    );
+
+    const mappedPayments = paymentRows.map((p: any) => ({
+      id: p.id || p.reference,
+      type: p.purpose || 'wallet_funding',
+      description: p.purpose === 'wallet_funding' ? 'KoraPay Coin Purchase' : (p.purpose || 'Payment'),
+      reference: p.reference,
+      amount: Number(p.amount || 0),
+      currency: p.currency || 'NGN',
+      provider: p.provider || 'korapay',
+      status: p.status || 'pending',
+      createdAt: p.createdAt || p.verifiedAt || new Date().toISOString(),
+    }));
+
+    const merged = [...transactions, ...mappedPayments].filter(Boolean).sort((a: any, b: any) =>
+      new Date(b.createdAt || b.date || 0).getTime() - new Date(a.createdAt || a.date || 0).getTime()
+    );
+
+    // De-duplicate payment entries that were copied into the user's transaction ledger.
+    const seen = new Set<string>();
+    const result = merged.filter((x: any) => {
+      const key = String(x.reference || x.id || `${x.type}-${x.createdAt}`);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    }).slice(0, 100);
+
+    return res.json(result);
+  } catch (e: any) {
+    console.error('[History] Failed to load wallet transactions:', e);
+    return res.status(500).json({ error: 'Unable to load transaction history.' });
+  }
+});
+
 // -------------------- ADMIN USER MANAGEMENT ENDPOINTS --------------------
 
 function serializeAdminUser(u: any, idx = 0) {

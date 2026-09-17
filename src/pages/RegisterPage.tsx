@@ -29,7 +29,7 @@ export const RegisterPage: React.FC = () => {
     }
     setLoading(true); setError(null);
     try {
-      await register({ fullName: fullName.trim(), username: username.trim().toLowerCase(), email: email.trim().toLowerCase(), phone: '', password });
+      await register({ fullName: fullName.trim(), username: username.trim().toLowerCase(), email: email.trim().toLowerCase(), password });
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please check your information.');
