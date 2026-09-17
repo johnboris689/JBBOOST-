@@ -44,13 +44,7 @@ export const RegisterPage: React.FC = () => {
           <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-[#7A1831] to-[#C13A5A] flex items-center justify-center shadow-lg"><Zap className="w-6 h-6 text-white fill-white" /></div>
           <span className="font-black text-2xl tracking-tight text-white">JB Boster</span>
         </Link>
-        <h1 className="text-2xl font-black text-white">Create Your Account</h1>
-        <p className="text-sm text-slate-400 mt-2 max-w-sm mx-auto">Create your JB Boster account and start managing your social-media growth orders in one place.</p>
-      </div>
-
-      <div className="mb-6 bg-[#7A1831]/10 border border-[#C13A5A]/20 p-4 rounded-2xl flex items-start gap-3">
-        <CheckCircle2 className="w-5 h-5 text-[#df6f8e] shrink-0 mt-0.5" />
-        <div><p className="text-sm text-white font-black">Built for social growth</p><p className="text-xs text-slate-400 mt-1">Choose Facebook, Instagram, TikTok, YouTube and other social services, then pay with your JB Boster coins.</p></div>
+        <h1 className="text-2xl font-black text-white">Create Account</h1>
       </div>
 
       {error && <div className="mb-5 p-3.5 bg-[#8F1D3A]/10 border border-[#8F1D3A]/30 rounded-xl text-[#f09ab1] text-xs flex items-center gap-2.5 font-semibold"><AlertCircle className="w-4 h-4 shrink-0"/><span>{error}</span></div>}
@@ -64,7 +58,7 @@ export const RegisterPage: React.FC = () => {
         <PasswordField label="Password *" value={password} setValue={setPassword} shown={showPassword} setShown={setShowPassword} placeholder="At least 8 characters" />
         <PasswordField label="Confirm Password *" value={confirmPassword} setValue={setConfirmPassword} shown={showConfirmPassword} setShown={setShowConfirmPassword} placeholder="Enter your password again" />
         {confirmPassword && <div className={`text-xs font-bold ${password === confirmPassword ? 'text-emerald-400' : 'text-rose-300'}`}>{password === confirmPassword ? '✓ Passwords match' : 'Passwords do not match'}</div>}
-        <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-[#7A1831] to-[#A52A4A] hover:from-[#8F1D3A] hover:to-[#C13A5A] disabled:opacity-50 text-white font-black text-sm py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all mt-2">{loading ? 'Creating Account...' : 'Create JB Boster Account'}{!loading && <ArrowRight className="w-4 h-4"/>}</button>
+        <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-[#7A1831] to-[#A52A4A] hover:from-[#8F1D3A] hover:to-[#C13A5A] disabled:opacity-50 text-white font-black text-sm py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all mt-2">{loading ? 'Creating Account...' : 'Create Account'}{!loading && <ArrowRight className="w-4 h-4"/>}</button>
       </form>
       <div className="mt-7 text-center text-xs text-slate-400 border-t border-white/10 pt-5">Already have an account? <Link to="/login" className="font-black text-[#C13A5A] hover:underline">Sign In</Link></div>
     </div>

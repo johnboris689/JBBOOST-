@@ -264,6 +264,7 @@ interface UserState {
   lastGiftCreditTime?: string;
   giftExpiresAt?: string;
   lastActivityTime?: string;
+  lastLogin?: string;
   username?: string;
   referralCode?: string;
   referralCount?: number;
@@ -462,6 +463,7 @@ async function loadDbCache() {
       lastGiftCreditTime: row.lastgiftcredittime || '',
       giftExpiresAt: row.giftexpiresat || '',
       lastActivityTime: row.lastactivitytime || '',
+      lastLogin: row.lastlogin || '',
       username: row.username || row.email?.split('@')[0] || '',
       referralCode: row.referralcode || '',
       referralCount: Number(row.referralcount ?? 0),
@@ -570,8 +572,8 @@ async function persistDbCache(data: DBStructure) {
             pinCreated, pinCode, biometricEnabled, profilePic, tier, isSuspended, isFrozen,
             registrationDate, accountStatus, beneficiaries, phoneBeneficiaries, loginHistory,
             notifications, transactions, wdvVerified, isWdvVerified, welcomeRewardShown,
-            giftDay, giftActive, lastGiftCreditTime, giftExpiresAt, lastActivityTime
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30)
+            giftDay, giftActive, lastGiftCreditTime, giftExpiresAt, lastActivityTime, lastLogin
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31)
           ON CONFLICT(email) DO UPDATE SET
             fullName = EXCLUDED.fullName,
             phone = EXCLUDED.phone,
@@ -600,7 +602,8 @@ async function persistDbCache(data: DBStructure) {
             giftActive = EXCLUDED.giftActive,
             lastGiftCreditTime = EXCLUDED.lastGiftCreditTime,
             giftExpiresAt = EXCLUDED.giftExpiresAt,
-            lastActivityTime = EXCLUDED.lastActivityTime
+            lastActivityTime = EXCLUDED.lastActivityTime,
+            lastLogin = EXCLUDED.lastLogin
         `, [
           u.fullName,
           u.email.split('@')[0],
@@ -631,7 +634,8 @@ async function persistDbCache(data: DBStructure) {
           u.giftActive ? 1 : 0,
           u.lastGiftCreditTime || '',
           u.giftExpiresAt || '',
-          u.lastActivityTime || new Date().toISOString()
+          u.lastActivityTime || new Date().toISOString(),
+          u.lastLogin || ''
         ]);
       } catch (uErr) {
         try {
@@ -1012,6 +1016,135 @@ const failedLogins = new Map<string, { count: number; lockedUntil: number }>();
 
 // -------------------- AUTHENTICATION ROUTES --------------------
 
+// User login
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const emailOrUsername = String(req.body?.emailOrUsername || '').trim();
+    const password = String(req.body?.password || '');
+    if (!emailOrUsername || !password) return res.status(400).json({ error: 'Email/username and password are required.' });
+
+    let user: any = null;
+    const lookup = emailOrUsername.toLowerCase();
+    try {
+      user = await getRow(`SELECT * FROM users WHERE LOWER(email)=LOWER($1) OR LOWER(username)=LOWER($1)`, [lookup]);
+    } catch (dbErr) {
+      console.error('[Auth] User lookup failed:', dbErr);
+      return res.status(503).json({ error: 'Database is temporarily unavailable. Please try again shortly.' });
+    }
+    if (!user) {
+      const cached = readDb().users.find((u: any) =>
+        String(u.email || '').toLowerCase() === lookup || String(u.username || '').toLowerCase() === lookup
+      );
+      user = cached || null;
+    }
+    if (!user) return res.status(401).json({ error: 'Invalid email/username or password.' });
+
+    const passwordHash = String(user.passwordhash || user.passwordHash || '');
+    const validPassword = passwordHash ? bcrypt.compareSync(password, passwordHash) : false;
+    if (!validPassword) {
+      logDiagnostic('FAILED_LOGIN', 'User login failed', { email: user.email });
+      return res.status(401).json({ error: 'Invalid email/username or password.' });
+    }
+
+    if (Number(user.issuspended ?? user.isSuspended ?? 0) === 1 || String(user.accountstatus || user.accountStatus || 'active') === 'suspended') {
+      return res.status(403).json({ error: 'Your account is suspended. Please contact support.' });
+    }
+    if (Number(user.isfrozen ?? user.isFrozen ?? 0) === 1) {
+      return res.status(403).json({ error: 'Your account is frozen. Please contact support.' });
+    }
+
+    const email = String(user.email || '').toLowerCase();
+    const now = new Date().toISOString();
+    const loginEntry = {
+      id: `login-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`,
+      date: new Date().toLocaleDateString(),
+      time: new Date().toLocaleTimeString(),
+      device: 'Web Client',
+      browser: req.headers['user-agent'] || 'Unknown Browser',
+      ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown',
+      status: 'success'
+    };
+
+    const cached = readDb().users.find((u: any) => String(u.email || '').toLowerCase() === email);
+    if (cached) {
+      cached.lastLogin = now;
+      cached.loginHistory = [loginEntry, ...(cached.loginHistory || [])].slice(0, 100);
+      await writeDb(readDb());
+    } else {
+      let history: any[] = [];
+      try { history = user.loginhistory ? JSON.parse(user.loginhistory) : []; } catch { history = []; }
+      history = [loginEntry, ...history].slice(0, 100);
+      await execute(`UPDATE users SET loginHistory=$1 WHERE LOWER(email)=LOWER($2)`, [JSON.stringify(history), email]);
+    }
+
+    const balance = Number(user.balance || 0);
+    const safeUser = {
+      id: email,
+      fullName: user.fullname || user.fullName || 'User',
+      username: user.username || email.split('@')[0],
+      email,
+      phone: '',
+      walletBalance: balance,
+      balance,
+      status: 'active',
+      tier: Number(user.tier || 3),
+      isSuspended: false,
+      isFrozen: false,
+      emailVerified: true,
+      isAdmin: false,
+      notifications: (() => { try { return typeof user.notifications === 'string' ? JSON.parse(user.notifications) : (user.notifications || []); } catch { return []; } })(),
+      referralCode: '',
+      referralLink: '',
+      totalReferrals: 0,
+      totalReferralBonus: 0,
+      totalEarnings: 0,
+      activationPaid: false,
+      createdAt: user.registrationdate || user.registrationDate || now,
+      lastLogin: now
+    };
+    const token = generateToken(email);
+    logDiagnostic('INFO', 'JB Boster user logged in successfully', { email });
+    return res.json({ success: true, token, user: safeUser });
+  } catch (err: any) {
+    console.error('[Auth] Login error:', err);
+    return res.status(500).json({ error: 'Unable to sign in right now. Please try again shortly.' });
+  }
+});
+
+// Restore the authenticated user session after a page refresh.
+app.get('/api/auth/me', authenticateToken, async (req: any, res) => {
+  try {
+    const email = String(req.userEmail || '').toLowerCase();
+    const user = await getRow(`SELECT * FROM users WHERE LOWER(email)=LOWER($1)`, [email]);
+    if (!user) return res.status(404).json({ error: 'User account not found.' });
+    const balance = Number(user.balance || 0);
+    const notifications = (() => { try { return typeof user.notifications === 'string' ? JSON.parse(user.notifications) : (user.notifications || []); } catch { return []; } })();
+    return res.json({ user: {
+      id: email,
+      fullName: user.fullname || user.fullName || 'User',
+      username: user.username || email.split('@')[0],
+      email,
+      phone: '',
+      walletBalance: balance,
+      balance,
+      status: String(user.accountstatus || 'active') === 'suspended' ? 'suspended' : 'active',
+      tier: Number(user.tier || 3),
+      isSuspended: Number(user.issuspended || 0) === 1,
+      isFrozen: Number(user.isfrozen || 0) === 1,
+      emailVerified: true,
+      isAdmin: false,
+      notifications,
+      referralCode: '', referralLink: '', totalReferrals: 0, totalReferralBonus: 0, totalEarnings: 0,
+      activationPaid: false,
+      createdAt: user.registrationdate || user.registrationDate || new Date().toISOString(),
+      lastLogin: user.lastLogin || user.registrationdate || new Date().toISOString()
+    }});
+  } catch (err: any) {
+    console.error('[Auth] Session restore error:', err);
+    return res.status(500).json({ error: 'Unable to restore your session.' });
+  }
+});
+
 // Register
 app.post('/api/auth/register', async (req, res) => {
   const { fullName, email, password, username } = req.body;
@@ -1048,6 +1181,9 @@ app.post('/api/auth/register', async (req, res) => {
     return res.status(400).json({ error: 'An account with this email address already exists.' });
   }
 
+  const duplicateUsername = db.users.find((u: any) => String(u.username || '').toLowerCase() === String(username || '').trim().toLowerCase());
+  if (duplicateUsername) return res.status(400).json({ error: 'That username is already in use. Please choose another username.' });
+
   const passwordHash = bcrypt.hashSync(password, 10);
 
   const initialTx: any[] = [];
@@ -1074,6 +1210,7 @@ app.post('/api/auth/register', async (req, res) => {
     isSuspended: false,
     isFrozen: false,
     registrationDate: new Date().toISOString(),
+    lastLogin: '',
     accountStatus: 'active',
     emailVerificationStatus: 'verified',
     welcomeRewardShown: true,
@@ -3331,7 +3468,12 @@ app.post('/api/admin/login', checkAdminLoginRateLimit, (req, res) => {
   recordSuccessfulAdminLogin(req);
   const token = generateToken(email);
   logDiagnostic('INFO', `Admin logged in successfully: ${email}`);
-  res.json({ success: true, token, email, user: { email, isAdmin: true, status: 'active' } });
+  res.json({ success: true, token, email, user: { id: email, email, isAdmin: true, status: 'active' } });
+});
+
+app.get('/api/admin/me', authenticateAdminToken, (req: any, res) => {
+  const email = String(req.adminEmail || '').toLowerCase();
+  res.json({ user: { id: email, email, isAdmin: true, status: 'active' } });
 });
 
 // Get Admin settings
@@ -4788,6 +4930,7 @@ app.post('/api/social/orders', authenticateToken, async (req:any,res:any)=>{
     await execute(`UPDATE users SET balance=$1 WHERE LOWER(email)=LOWER($2)`,[newBalance,email]);
     try{await execute(`UPDATE wallets SET balance=$1 WHERE LOWER(userId)=LOWER($2)`,[newBalance,email])}catch{}
     await execute(`INSERT INTO social_orders (id,userEmail,serviceId,serviceName,platform,quantity,targetUrl,amount,status,providerOrderId,createdAt,updatedAt) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'pending','',$9,$9)`,[id,email,service.id,service.name,service.platform,quantity,targetUrl,amount,now]);
+    try { await execute(`INSERT INTO transactions (id,userId,amount,type,status,reference,timestamp) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT(id) DO NOTHING`, [`tx-${id}`, email, amount, 'social_order', 'pending', id, now]); } catch (txErr) { console.warn('[JB BOOST] Normalized order transaction insert skipped:', txErr); }
     const db=readDb();const u=db.users.find((x:any)=>String(x.email||'').toLowerCase()===email);if(u){u.balance=newBalance;u.transactions=u.transactions||[];u.transactions.unshift({id:`tx-${Date.now()}`,userId:email,type:'admin_debit',amount,date:now,status:'success',description:`JB BOOST Order — ${service.name}`,reference:id,balanceBefore:balance,balanceAfter:newBalance});u.notifications=u.notifications||[];u.notifications.unshift({id:`notif-${Date.now()}`,title:'Order Created',body:`Your ${service.name} order has been created.`,date:now,unread:true,type:'order'});await writeDb(db)}
     res.json({success:true,order:{id,serviceName:service.name,platform:service.platform,quantity,targetUrl,amount,status:'pending',createdAt:now},balance:newBalance});
   }catch(e:any){console.error('[JB BOOST Order]',e);res.status(400).json({error:e.message||'Could not create order.'})}
@@ -4797,7 +4940,7 @@ app.post('/api/admin/social/services', authenticateAdminToken, async (req,res)=>
 app.put('/api/admin/social/services/:id', authenticateAdminToken, async (req,res)=>{try{const b=req.body||{};await execute(`UPDATE social_services SET platform=$1,name=$2,description=$3,ratePer1000=$4,minQuantity=$5,maxQuantity=$6,enabled=$7 WHERE id=$8`,[String(b.platform),String(b.name),String(b.description||''),Number(b.ratePer1000),Number(b.minQuantity),Number(b.maxQuantity),b.enabled===false?0:1,req.params.id]);res.json({success:true});}catch(e:any){res.status(400).json({error:e.message})}});
 app.delete('/api/admin/social/services/:id', authenticateAdminToken, async (req,res)=>{try{await execute(`DELETE FROM social_services WHERE id=$1`,[req.params.id]);res.json({success:true});}catch(e:any){res.status(400).json({error:e.message})}});
 app.get('/api/admin/social/orders', authenticateAdminToken, async (_req,res)=>{try{const rows=await getAllRows(`SELECT * FROM social_orders ORDER BY createdAt DESC`);res.json(rows)}catch(e:any){res.status(500).json({error:e.message})}});
-app.patch('/api/admin/social/orders/:id', authenticateAdminToken, async (req,res)=>{try{const status=String(req.body?.status||'pending');if(!['pending','processing','completed','partial','cancelled','failed'].includes(status))return res.status(400).json({error:'Invalid status.'});await execute(`UPDATE social_orders SET status=$1,updatedAt=$2 WHERE id=$3`,[status,new Date().toISOString(),req.params.id]);res.json({success:true});}catch(e:any){res.status(400).json({error:e.message})}});
+app.patch('/api/admin/social/orders/:id', authenticateAdminToken, async (req,res)=>{try{const status=String(req.body?.status||'pending');if(!['pending','processing','completed','partial','cancelled','failed'].includes(status))return res.status(400).json({error:'Invalid status.'});const now=new Date().toISOString();await execute(`UPDATE social_orders SET status=$1,updatedAt=$2 WHERE id=$3`,[status,now,req.params.id]);try{await execute(`UPDATE transactions SET status=$1 WHERE reference=$2`,[status,req.params.id]);}catch{}res.json({success:true});}catch(e:any){res.status(400).json({error:e.message})}});
 
 // Get diagnostic logs
 app.get('/api/admin/logs', authenticateAdminToken, (req, res) => {

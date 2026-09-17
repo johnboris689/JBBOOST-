@@ -436,6 +436,7 @@ export async function initDb() {
       lastGiftCreditTime TEXT,
       giftExpiresAt TEXT,
       lastActivityTime TEXT,
+      lastLogin TEXT,
       referralCode TEXT,
       referralCount INTEGER DEFAULT 0,
       totalReferralBonus REAL DEFAULT 0,
@@ -468,6 +469,9 @@ export async function initDb() {
   } catch (e) {}
   try {
     await execute(`ALTER TABLE users ADD COLUMN IF NOT EXISTS lastActivityTime TEXT`);
+  } catch (e) {}
+  try {
+    await execute(`ALTER TABLE users ADD COLUMN IF NOT EXISTS lastLogin TEXT`);
   } catch (e) {}
   try { await execute(`ALTER TABLE users ADD COLUMN IF NOT EXISTS referralCode TEXT`); } catch (e) {}
   try { await execute(`ALTER TABLE users ADD COLUMN IF NOT EXISTS referralCount INTEGER DEFAULT 0`); } catch (e) {}

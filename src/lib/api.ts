@@ -126,6 +126,7 @@ export const api = {
     }),
 
   getCurrentUser: () => request<{ user: User }>('/api/auth/me'),
+  getAdminSession: () => request<{ user: User }>('/api/admin/me', {}, true),
 
   updateAvatar: (avatarUrl: string) =>
     request<{ message: string; user: User }>('/api/user/avatar', {

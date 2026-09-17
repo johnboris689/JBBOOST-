@@ -62,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
     try {
-      const res = await api.getCurrentUser();
+      const res = await api.getAdminSession();
       if (res.user.isAdmin) {
         setAdminUser(res.user);
       } else {

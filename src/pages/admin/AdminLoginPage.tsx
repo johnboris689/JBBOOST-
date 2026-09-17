@@ -24,7 +24,7 @@ export const AdminLoginPage: React.FC = () => {
 
     try {
       await adminLogin(email, password);
-      navigate('/admin');
+      navigate('/boris/dashboard');
     } catch (err: any) {
       setError(err.message || 'Invalid administrator credentials.');
     } finally {
