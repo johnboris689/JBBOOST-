@@ -295,7 +295,7 @@ export default function NotificationsModal({
                         <Coins className="h-3.5 w-3.5 text-[#df6f8e]" /> Coins
                       </span>
                       <span className="text-sm font-bold text-[#df6f8e] font-mono">
-                        {typeof details.amount === 'number' ? Math.round(details.amount * 2).toLocaleString() : details.amount}
+                        {typeof details.amount === 'number' ? Math.round(details.amount / 1.5).toLocaleString() : details.amount}
                       </span>
                     </div>
                   )}

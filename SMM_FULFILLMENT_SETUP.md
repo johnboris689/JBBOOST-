@@ -8,13 +8,15 @@ This version keeps the existing JB Boster application, PostgreSQL database and K
 SMM_PROVIDER_API_URL=https://smmpwr.com/api/v2
 SMM_PROVIDER_API_KEY=YOUR_SMM_PWR_API_KEY
 SMM_USD_NGN_RATE=YOUR_CURRENT_USD_TO_NGN_RATE
-SMM_DEFAULT_MARKUP_PERCENT=100
+SMM_DEFAULT_MARKUP_PERCENT=50
+NAIRA_PER_COIN=1.5
+SMM_AUTO_REFRESH_PRICES=true
 SMM_LOW_BALANCE_THRESHOLD=5
 ```
 
 `SMM_PROVIDER_API_KEY` is backend-only. Never put it in a Vite/React environment variable, source code, HTML, API response or client bundle.
 
-`SMM_USD_NGN_RATE` is required because SMM PWR quotes wholesale service rates in USD while JB Boster's customer economy is NGN-backed coins (1,000 coins = ₦500). The administrator can override the resulting customer coin rate per service from the admin dashboard.
+`SMM_USD_NGN_RATE` is required because SMM PWR quotes wholesale service rates in USD while JB Boster's customer economy is NGN-backed coins (1 coin = ₦1.50 (100 coins = ₦150)). The administrator can override the resulting customer coin rate per service from the admin dashboard.
 
 ## First deployment
 

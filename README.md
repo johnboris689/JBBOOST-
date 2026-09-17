@@ -11,7 +11,7 @@ JB Boster is a mobile-first social-media growth platform. Customers can choose a
 - Telegram
 
 ## Coins
-**1,000 JB Boster coins = ₦500.**
+**1 JB Boster coin = ₦1.50 (100 coins = ₦150).**
 
 The customer interface displays wallet balances and service costs in coins. KoraPay checkout is processed in Nigerian Naira because KoraPay is the real payment gateway.
 

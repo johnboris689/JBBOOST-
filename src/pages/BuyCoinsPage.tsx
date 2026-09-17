@@ -11,15 +11,14 @@ export const BuyCoinsPage: React.FC = () => {
   const [msg, setMsg] = React.useState('');
   const [ref, setRef] = React.useState('');
   const [check, setCheck] = React.useState(false);
-  const presets = [1040, 2000, 5000, 10000, 20000, 50000];
+  const presets = [400, 1000, 2000, 5000, 10000, 20000];
   const requestedCoins = Number(coins || 0);
   const nairaAmount = coinsToNaira(requestedCoins);
 
   const buy = async () => {
     if (!Number.isFinite(requestedCoins) || requestedCoins < MIN_COIN_PURCHASE) {
-      setMsg(`Minimum purchase is ${MIN_COIN_PURCHASE.toLocaleString()} coins (₦520).`); return;
+      setMsg(`Minimum purchase is ${MIN_COIN_PURCHASE.toLocaleString()} coins (₦${coinsToNaira(MIN_COIN_PURCHASE).toLocaleString()}).`); return;
     }
-    if (requestedCoins % 2 !== 0) { setMsg('Enter an even number of coins so the KoraPay amount can be calculated exactly.'); return; }
     setLoading(true); setMsg('');
     try {
       const r = await api.initializeKoraPayDeposit(nairaAmount);
@@ -42,10 +41,10 @@ export const BuyCoinsPage: React.FC = () => {
 
   return <div className="max-w-xl mx-auto space-y-4">
     <div><h1 className="text-2xl font-black flex items-center gap-2"><Coins className="w-6 h-6 text-[#df6f8e]"/> Buy Coins</h1><p className="text-xs text-slate-400 mt-1">Use coins to order social-media growth services on JB Boster.</p></div>
-    <div className="jb-card p-5 relative overflow-hidden"><div className="absolute -right-10 -top-10 w-36 h-36 rounded-full bg-[#a72b50]/10 blur-3xl"/><div className="text-xs text-slate-400">Available coins</div><div className="text-3xl font-black mt-1 flex items-center gap-2"><Coins className="w-7 h-7 text-[#df6f8e]"/>{nairaToCoins(Number(user?.walletBalance || 0)).toLocaleString()}</div><p className="text-[11px] text-slate-500 mt-2">1,000 coins = ₦500</p></div>
+    <div className="jb-card p-5 relative overflow-hidden"><div className="absolute -right-10 -top-10 w-36 h-36 rounded-full bg-[#a72b50]/10 blur-3xl"/><div className="text-xs text-slate-400">Available coins</div><div className="text-3xl font-black mt-1 flex items-center gap-2"><Coins className="w-7 h-7 text-[#df6f8e]"/>{nairaToCoins(Number(user?.walletBalance || 0)).toLocaleString()}</div><p className="text-[11px] text-slate-500 mt-2">1 coin = ₦1.50 (100 coins = ₦150)</p></div>
     <div className="jb-card p-5">
       <div className="flex items-center justify-between gap-3"><div><h2 className="font-black">Choose coin amount</h2><p className="text-xs text-slate-400 mt-1">KoraPay will charge the Naira equivalent.</p></div><CreditCard className="w-5 h-5 text-[#df6f8e]"/></div>
-      <label className="block text-xs font-bold mt-5">Coins<input className="jb-input mt-2 text-lg font-black" type="number" min={MIN_COIN_PURCHASE} step="2" value={coins} onChange={e=>setCoins(e.target.value)} placeholder="Enter coins"/></label>
+      <label className="block text-xs font-bold mt-5">Coins<input className="jb-input mt-2 text-lg font-black" type="number" min={MIN_COIN_PURCHASE} step="1" value={coins} onChange={e=>setCoins(e.target.value)} placeholder="Enter coins"/></label>
       <div className="grid grid-cols-3 gap-2 mt-3">{presets.map(a=><button type="button" key={a} onClick={()=>setCoins(String(a))} className="rounded-xl border border-white/10 bg-white/[.03] py-2.5 text-xs font-black hover:border-[#a72b50]/60">{a.toLocaleString()} coins</button>)}</div>
       <div className="mt-4 p-4 rounded-2xl bg-[#7d1738]/10 border border-[#a72b50]/20"><div className="flex justify-between text-xs"><span className="text-slate-400">You receive</span><b>{requestedCoins > 0 ? requestedCoins.toLocaleString() : '0'} coins</b></div><div className="flex justify-between text-xs mt-2"><span className="text-slate-400">KoraPay payment</span><b>₦{Number.isFinite(nairaAmount) ? nairaAmount.toLocaleString() : '0'}</b></div></div>
       <button disabled={loading} onClick={buy} className="jb-primary w-full justify-center mt-4">{loading?'Opening KoraPay…':'Continue to KoraPay'}<ArrowRight className="w-4 h-4"/></button>

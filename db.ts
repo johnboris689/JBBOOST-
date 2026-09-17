@@ -786,6 +786,7 @@ export async function initDb() {
   try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS providerDescription TEXT`); } catch (_) {}
   try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS providerLastSyncedAt TEXT`); } catch (_) {}
   try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS providerAvailable INTEGER DEFAULT 1`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS serviceKey TEXT`); } catch (_) {}
 
   try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS targetType TEXT DEFAULT 'post'`); } catch (_) {}
   try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS openedAt TEXT`); } catch (_) {}
