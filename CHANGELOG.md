@@ -1,3 +1,11 @@
+
+## 2026-09-17 — Order details and target-aware ordering
+- Order forms now change the target field to profile/channel/username or post/video URL according to the selected service.
+- Quantity and coin cost are calculated before placing an order, with validation before submission.
+- Orders are now tappable and open a detailed view showing order ID, target, quantity, cost, opened time, estimated completion, delivered quantity, remaining quantity, and latest progress update.
+- Added persistent order progress/completion metadata and safe PostgreSQL upgrades for existing databases.
+- Added configurable estimated delivery time to social services.
+- Customer order details refresh periodically while open.
 # JB Boster Changelog
 
 ## Current release — KoraPay-only wallet and database cleanup

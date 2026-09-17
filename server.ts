@@ -4913,34 +4913,150 @@ app.post('/api/admin/users/delete', authenticateAdminToken, async (req, res) => 
 
 
 // -------------------- JB BOOST SOCIAL SERVICES --------------------
+function socialTargetType(serviceName: string, platform: string) {
+  const name = `${platform} ${serviceName}`.toLowerCase();
+  return /follower|subscriber|member|members/.test(name) ? 'profile' : 'post';
+}
+
+function socialTargetLabel(serviceName: string, platform: string) {
+  const type = socialTargetType(serviceName, platform);
+  const p = platform.toLowerCase();
+  if (type === 'profile') {
+    if (p === 'youtube') return 'Target channel URL or @handle';
+    if (p === 'telegram') return 'Target channel/group link or @username';
+    return 'Target profile URL or @username';
+  }
+  if (p === 'youtube') return 'Target video URL';
+  if (p === 'tiktok') return 'Target video/post URL';
+  if (p === 'instagram') return 'Target post/reel URL';
+  if (p === 'facebook') return 'Target post URL';
+  if (p === 'x') return 'Target post URL';
+  if (p === 'telegram') return 'Target post/message URL';
+  return 'Target post URL';
+}
+
+function socialOrderView(x: any) {
+  const quantity = Number(x.quantity || 0);
+  const delivered = Math.max(0, Math.min(quantity, Number(x.deliveredquantity ?? x.deliveredQuantity ?? 0)));
+  const remaining = Math.max(0, quantity - delivered);
+  return {
+    ...x,
+    quantity,
+    amount: Number(x.amount || 0),
+    targetType: x.targettype ?? x.targetType ?? 'post',
+    openedAt: x.openedat ?? x.openedAt ?? x.createdat ?? x.createdAt ?? null,
+    expectedCompleteAt: x.expectedcompleteat ?? x.expectedCompleteAt ?? null,
+    startCount: Number(x.startcount ?? x.startCount ?? 0),
+    deliveredQuantity: delivered,
+    remainingQuantity: remaining,
+    lastProgressAt: x.lastprogressat ?? x.lastProgressAt ?? null,
+    completedAt: x.completedat ?? x.completedAt ?? null,
+  };
+}
+
 app.get('/api/social/services', async (req:any,res:any)=>{
-  try{ const platform=String(req.query?.platform||'').trim(); const rows=platform?await getAllRows(`SELECT * FROM social_services WHERE enabled=1 AND LOWER(platform)=LOWER($1) ORDER BY platform,name`,[platform]):await getAllRows(`SELECT * FROM social_services WHERE enabled=1 ORDER BY platform,name`); res.json(rows.map((x:any)=>({...x,ratePer1000:Number(x.rateper1000??x.ratePer1000??0),minQuantity:Number(x.minquantity??x.minQuantity??0),maxQuantity:Number(x.maxquantity??x.maxQuantity??0),enabled:Boolean(Number(x.enabled??1))}))); }catch(e:any){res.status(500).json({error:e.message||'Failed to load social services.'})}
+  try {
+    const platform=String(req.query?.platform||'').trim();
+    const rows=platform
+      ? await getAllRows(`SELECT * FROM social_services WHERE enabled=1 AND LOWER(platform)=LOWER($1) ORDER BY platform,name`,[platform])
+      : await getAllRows(`SELECT * FROM social_services WHERE enabled=1 ORDER BY platform,name`);
+    res.json(rows.map((x:any)=>({
+      ...x,
+      ratePer1000:Number(x.rateper1000??x.ratePer1000??0),
+      minQuantity:Number(x.minquantity??x.minQuantity??0),
+      maxQuantity:Number(x.maxquantity??x.maxQuantity??0),
+      estimatedMinutes:Number(x.estimatedminutes??x.estimatedMinutes??1440),
+      targetType:socialTargetType(String(x.name||''),String(x.platform||'')),
+      targetLabel:socialTargetLabel(String(x.name||''),String(x.platform||'')),
+      enabled:Boolean(Number(x.enabled??1))
+    })));
+  }catch(e:any){res.status(500).json({error:e.message||'Failed to load social services.'})}
 });
-app.get('/api/social/orders', authenticateToken, async (req:any,res:any)=>{try{const rows=await getAllRows(`SELECT * FROM social_orders WHERE LOWER(userEmail)=LOWER($1) ORDER BY createdAt DESC`,[String(req.userEmail).toLowerCase()]);res.json(rows.map((x:any)=>({...x,quantity:Number(x.quantity||0),amount:Number(x.amount||0)})));}catch(e:any){res.status(500).json({error:e.message})}});
+
+app.get('/api/social/orders', authenticateToken, async (req:any,res:any)=>{
+  try{
+    const rows=await getAllRows(`SELECT * FROM social_orders WHERE LOWER(userEmail)=LOWER($1) ORDER BY createdAt DESC`,[String(req.userEmail).toLowerCase()]);
+    res.json(rows.map(socialOrderView));
+  }catch(e:any){res.status(500).json({error:e.message})}
+});
+
+app.get('/api/social/orders/:id', authenticateToken, async (req:any,res:any)=>{
+  try{
+    const row=await getRow(`SELECT * FROM social_orders WHERE id=$1 AND LOWER(userEmail)=LOWER($2)`,[req.params.id,String(req.userEmail).toLowerCase()]);
+    if(!row)return res.status(404).json({error:'Order not found.'});
+    res.json(socialOrderView(row));
+  }catch(e:any){res.status(500).json({error:e.message||'Unable to load order.'})}
+});
+
 app.post('/api/social/orders', authenticateToken, async (req:any,res:any)=>{
   try{
-    const email=String(req.userEmail).toLowerCase(); const serviceId=String(req.body?.serviceId||'').trim(); const quantity=Math.floor(Number(req.body?.quantity||0)); const targetUrl=String(req.body?.targetUrl||'').trim();
+    const email=String(req.userEmail).toLowerCase();
+    const serviceId=String(req.body?.serviceId||'').trim();
+    const quantity=Math.floor(Number(req.body?.quantity||0));
+    const targetUrl=String(req.body?.targetUrl||'').trim();
     if(!serviceId||!quantity||!targetUrl) return res.status(400).json({error:'Service, quantity and target are required.'});
-    const service=await getRow(`SELECT * FROM social_services WHERE id=$1 AND enabled=1`,[serviceId]); if(!service)return res.status(404).json({error:'Service not found or unavailable.'});
-    const min=Number(service.minquantity??service.minQuantity??0),max=Number(service.maxquantity??service.maxQuantity??0); if(quantity<min||quantity>max)return res.status(400).json({error:`Quantity must be between ${min.toLocaleString()} and ${max.toLocaleString()}.`});
-    if(!/^https?:\/\//i.test(targetUrl) && !/^@?[A-Za-z0-9_.-]{2,}$/.test(targetUrl)) return res.status(400).json({error:'Enter a valid social profile/post URL or username.'});
-    const rate=Number(service.rateper1000??service.ratePer1000??0); const amount=Math.round((quantity/1000)*rate*100)/100; if(amount<=0)return res.status(400).json({error:'Invalid service price.'});
-    const user=await getRow(`SELECT * FROM users WHERE LOWER(email)=LOWER($1)`,[email]); if(!user)return res.status(404).json({error:'User account not found.'}); const balance=Number(user.balance||0); if(balance+0.0001<amount)return res.status(400).json({error:`Insufficient balance. You need ₦${amount.toLocaleString()}.`});
-    const id=`ord-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`,now=new Date().toISOString(),newBalance=balance-amount;
+    const service=await getRow(`SELECT * FROM social_services WHERE id=$1 AND enabled=1`,[serviceId]);
+    if(!service)return res.status(404).json({error:'Service not found or unavailable.'});
+    const min=Number(service.minquantity??service.minQuantity??0),max=Number(service.maxquantity??service.maxQuantity??0);
+    if(quantity<min||quantity>max)return res.status(400).json({error:`Quantity must be between ${min.toLocaleString()} and ${max.toLocaleString()}.`});
+    const platform=String(service.platform||'');
+    const serviceName=String(service.name||'');
+    const targetType=socialTargetType(serviceName,platform);
+    const isUrl=/^https?:\/\//i.test(targetUrl);
+    const isHandle=/^@[A-Za-z0-9_.-]{2,}$/.test(targetUrl);
+    if(targetType==='profile' ? (!isUrl&&!isHandle) : !isUrl) {
+      return res.status(400).json({error:targetType==='profile' ? socialTargetLabel(serviceName,platform)+' is required.' : socialTargetLabel(serviceName,platform)+' is required.'});
+    }
+    const rate=Number(service.rateper1000??service.ratePer1000??0);
+    const amount=Math.round((quantity/1000)*rate*100)/100;
+    if(amount<=0)return res.status(400).json({error:'Invalid service price.'});
+    const user=await getRow(`SELECT * FROM users WHERE LOWER(email)=LOWER($1)`,[email]);
+    if(!user)return res.status(404).json({error:'User account not found.'});
+    const balance=Number(user.balance||0);
+    if(balance+0.0001<amount)return res.status(400).json({error:`Insufficient balance. You need ₦${amount.toLocaleString()}.`});
+    const id=`ord-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
+    const now=new Date();
+    const nowIso=now.toISOString();
+    const estimatedMinutes=Math.max(1,Number(service.estimatedminutes??service.estimatedMinutes??1440));
+    const expectedCompleteAt=new Date(now.getTime()+estimatedMinutes*60*1000).toISOString();
+    const newBalance=balance-amount;
     await execute(`UPDATE users SET balance=$1 WHERE LOWER(email)=LOWER($2)`,[newBalance,email]);
     try{await execute(`UPDATE wallets SET balance=$1 WHERE LOWER(userId)=LOWER($2)`,[newBalance,email])}catch{}
-    await execute(`INSERT INTO social_orders (id,userEmail,serviceId,serviceName,platform,quantity,targetUrl,amount,status,providerOrderId,createdAt,updatedAt) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'pending','',$9,$9)`,[id,email,service.id,service.name,service.platform,quantity,targetUrl,amount,now]);
-    try { await execute(`INSERT INTO transactions (id,userId,amount,type,status,reference,timestamp) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT(id) DO NOTHING`, [`tx-${id}`, email, amount, 'social_order', 'pending', id, now]); } catch (txErr) { console.warn('[JB BOOST] Normalized order transaction insert skipped:', txErr); }
-    const db=readDb();const u=db.users.find((x:any)=>String(x.email||'').toLowerCase()===email);if(u){u.balance=newBalance;u.transactions=u.transactions||[];u.transactions.unshift({id:`tx-${Date.now()}`,userId:email,type:'admin_debit',amount,date:now,status:'success',description:`JB BOOST Order — ${service.name}`,reference:id,balanceBefore:balance,balanceAfter:newBalance});u.notifications=u.notifications||[];u.notifications.unshift({id:`notif-${Date.now()}`,title:'Order Created',body:`Your ${service.name} order has been created.`,date:now,unread:true,type:'order'});await writeDb(db)}
-    res.json({success:true,order:{id,serviceName:service.name,platform:service.platform,quantity,targetUrl,amount,status:'pending',createdAt:now},balance:newBalance});
+    await execute(`INSERT INTO social_orders (id,userEmail,serviceId,serviceName,platform,quantity,targetUrl,amount,status,providerOrderId,createdAt,updatedAt,targetType,openedAt,expectedCompleteAt,startCount,deliveredQuantity,remainingQuantity,lastProgressAt,completedAt) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'pending','',$9,$9,$10,$9,$11,0,0,$6,$9,NULL)`,[id,email,service.id,serviceName,platform,quantity,targetUrl,amount,nowIso,targetType,expectedCompleteAt]);
+    try { await execute(`INSERT INTO transactions (id,userId,amount,type,status,reference,timestamp) VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT(id) DO NOTHING`, [`tx-${id}`, email, amount, 'social_order', 'pending', id, nowIso]); } catch (txErr) { console.warn('[JB BOOST] Normalized order transaction insert skipped:', txErr); }
+    const db=readDb();const u=db.users.find((x:any)=>String(x.email||'').toLowerCase()===email);if(u){u.balance=newBalance;u.transactions=u.transactions||[];u.transactions.unshift({id:`tx-${Date.now()}`,userId:email,type:'admin_debit',amount,date:nowIso,status:'success',description:`JB BOOST Order — ${serviceName}`,reference:id,balanceBefore:balance,balanceAfter:newBalance});u.notifications=u.notifications||[];u.notifications.unshift({id:`notif-${Date.now()}`,title:'Order Created',body:`Your ${serviceName} order has been created.`,date:nowIso,unread:true,type:'order'});await writeDb(db)}
+    res.json({success:true,order:socialOrderView({id,userEmail:email,serviceId:service.id,serviceName,platform,quantity,targetUrl,amount,status:'pending',createdAt:nowIso,updatedAt:nowIso,targetType,openedAt:nowIso,expectedCompleteAt,startCount:0,deliveredQuantity:0,remainingQuantity:quantity}),balance:newBalance});
   }catch(e:any){console.error('[JB BOOST Order]',e);res.status(400).json({error:e.message||'Could not create order.'})}
 });
-app.get('/api/admin/social/services', authenticateAdminToken, async (_req,res)=>{try{const rows=await getAllRows(`SELECT * FROM social_services ORDER BY platform,name`);res.json(rows.map((x:any)=>({...x,ratePer1000:Number(x.rateper1000??x.ratePer1000??0),minQuantity:Number(x.minquantity??x.minQuantity??0),maxQuantity:Number(x.maxquantity??x.maxQuantity??0),enabled:Boolean(Number(x.enabled??1))})));}catch(e:any){res.status(500).json({error:e.message})}});
-app.post('/api/admin/social/services', authenticateAdminToken, async (req,res)=>{try{const b=req.body||{};const id=`svc-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;if(!b.platform||!b.name||!Number.isFinite(Number(b.ratePer1000))||!Number.isFinite(Number(b.minQuantity))||!Number.isFinite(Number(b.maxQuantity)))return res.status(400).json({error:'Platform, name, rate, minimum and maximum are required.'});await execute(`INSERT INTO social_services (id,platform,name,description,ratePer1000,minQuantity,maxQuantity,enabled,createdAt) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,[id,String(b.platform),String(b.name),String(b.description||''),Number(b.ratePer1000),Number(b.minQuantity),Number(b.maxQuantity),b.enabled===false?0:1,new Date().toISOString()]);res.json({success:true,id});}catch(e:any){res.status(400).json({error:e.message})}});
-app.put('/api/admin/social/services/:id', authenticateAdminToken, async (req,res)=>{try{const b=req.body||{};await execute(`UPDATE social_services SET platform=$1,name=$2,description=$3,ratePer1000=$4,minQuantity=$5,maxQuantity=$6,enabled=$7 WHERE id=$8`,[String(b.platform),String(b.name),String(b.description||''),Number(b.ratePer1000),Number(b.minQuantity),Number(b.maxQuantity),b.enabled===false?0:1,req.params.id]);res.json({success:true});}catch(e:any){res.status(400).json({error:e.message})}});
-app.delete('/api/admin/social/services/:id', authenticateAdminToken, async (req,res)=>{try{await execute(`DELETE FROM social_services WHERE id=$1`,[req.params.id]);res.json({success:true});}catch(e:any){res.status(400).json({error:e.message})}});
-app.get('/api/admin/social/orders', authenticateAdminToken, async (_req,res)=>{try{const rows=await getAllRows(`SELECT * FROM social_orders ORDER BY createdAt DESC`);res.json(rows)}catch(e:any){res.status(500).json({error:e.message})}});
-app.patch('/api/admin/social/orders/:id', authenticateAdminToken, async (req,res)=>{try{const status=String(req.body?.status||'pending');if(!['pending','processing','completed','partial','cancelled','failed'].includes(status))return res.status(400).json({error:'Invalid status.'});const now=new Date().toISOString();await execute(`UPDATE social_orders SET status=$1,updatedAt=$2 WHERE id=$3`,[status,now,req.params.id]);try{await execute(`UPDATE transactions SET status=$1 WHERE reference=$2`,[status,req.params.id]);}catch{}res.json({success:true});}catch(e:any){res.status(400).json({error:e.message})}});
+
+app.get('/api/admin/social/services', authenticateAdminToken, async (_req,res)=>{
+  try{const rows=await getAllRows(`SELECT * FROM social_services ORDER BY platform,name`);res.json(rows.map((x:any)=>({...x,ratePer1000:Number(x.rateper1000??x.ratePer1000??0),minQuantity:Number(x.minquantity??x.minQuantity??0),maxQuantity:Number(x.maxquantity??x.maxQuantity??0),estimatedMinutes:Number(x.estimatedminutes??x.estimatedMinutes??1440),enabled:Boolean(Number(x.enabled??1))})));}catch(e:any){res.status(500).json({error:e.message})}
+});
+app.post('/api/admin/social/services', authenticateAdminToken, async (req,res)=>{
+  try{const b=req.body||{};const id=`svc-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;if(!b.platform||!b.name||!Number.isFinite(Number(b.ratePer1000))||!Number.isFinite(Number(b.minQuantity))||!Number.isFinite(Number(b.maxQuantity)))return res.status(400).json({error:'Platform, name, rate, minimum and maximum are required.'});await execute(`INSERT INTO social_services (id,platform,name,description,ratePer1000,minQuantity,maxQuantity,enabled,createdAt,estimatedMinutes) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,[id,String(b.platform),String(b.name),String(b.description||''),Number(b.ratePer1000),Number(b.minQuantity),Number(b.maxQuantity),b.enabled===false?0:1,new Date().toISOString(),Math.max(1,Number(b.estimatedMinutes||1440))]);res.json({success:true,id});}catch(e:any){res.status(400).json({error:e.message})}
+});
+app.put('/api/admin/social/services/:id', authenticateAdminToken, async (req,res)=>{
+  try{const b=req.body||{};await execute(`UPDATE social_services SET platform=$1,name=$2,description=$3,ratePer1000=$4,minQuantity=$5,maxQuantity=$6,enabled=$7,estimatedMinutes=$8 WHERE id=$9`,[String(b.platform),String(b.name),String(b.description||''),Number(b.ratePer1000),Number(b.minQuantity),Number(b.maxQuantity),b.enabled===false?0:1,Math.max(1,Number(b.estimatedMinutes||1440)),req.params.id]);res.json({success:true});}catch(e:any){res.status(400).json({error:e.message})}
+});
+app.delete('/api/admin/social/services/:id', authenticateAdminToken, async (req,res)=>{try{await execute(`DELETE FROM social_services WHERE id=$1`,[req.params.id]);res.json({success:true})}catch(e:any){res.status(400).json({error:e.message})}});
+app.get('/api/admin/social/orders', authenticateAdminToken, async (_req,res)=>{try{const rows=await getAllRows(`SELECT * FROM social_orders ORDER BY createdAt DESC`);res.json(rows.map(socialOrderView))}catch(e:any){res.status(500).json({error:e.message})}});
+app.patch('/api/admin/social/orders/:id', authenticateAdminToken, async (req,res)=>{
+  try{
+    const status=String(req.body?.status||'pending');
+    if(!['pending','processing','completed','partial','cancelled','failed'].includes(status))return res.status(400).json({error:'Invalid status.'});
+    const existing=await getRow(`SELECT * FROM social_orders WHERE id=$1`,[req.params.id]);
+    if(!existing)return res.status(404).json({error:'Order not found.'});
+    const quantity=Number(existing.quantity||0);
+    let delivered=Math.max(0,Math.min(quantity,Math.floor(Number(req.body?.deliveredQuantity ?? existing.deliveredquantity ?? 0))));
+    if(status==='completed')delivered=quantity;
+    const remaining=Math.max(0,quantity-delivered);
+    const now=new Date().toISOString();
+    const completedAt=status==='completed'?now:null;
+    await execute(`UPDATE social_orders SET status=$1,updatedAt=$2,deliveredQuantity=$3,remainingQuantity=$4,lastProgressAt=$2,completedAt=$5 WHERE id=$6`,[status,now,delivered,remaining,completedAt,req.params.id]);
+    try{await execute(`UPDATE transactions SET status=$1 WHERE reference=$2`,[status,req.params.id])}catch{}
+    res.json({success:true});
+  }catch(e:any){res.status(400).json({error:e.message})}
+});
 
 // Get diagnostic logs
 app.get('/api/admin/logs', authenticateAdminToken, (req, res) => {

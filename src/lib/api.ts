@@ -315,6 +315,7 @@ export const api = {
   createSocialOrder: (payload: { serviceId: string; quantity: number; targetUrl: string }) =>
     request<any>('/api/social/orders', { method: 'POST', body: JSON.stringify(payload) }),
   getSocialOrders: () => request<any[]>('/api/social/orders'),
+  getSocialOrder: (id: string) => request<any>(`/api/social/orders/${encodeURIComponent(id)}`),
   getAdminSocialServices: () => request<any[]>('/api/admin/social/services', {}, true),
   createAdminSocialService: (payload: any) => request<any>('/api/admin/social/services', { method: 'POST', body: JSON.stringify(payload) }, true),
   updateAdminSocialService: (id: string, payload: any) => request<any>(`/api/admin/social/services/${id}`, { method: 'PUT', body: JSON.stringify(payload) }, true),

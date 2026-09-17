@@ -690,6 +690,18 @@ export async function initDb() {
 
   await execute(`CREATE TABLE IF NOT EXISTS social_services (id TEXT PRIMARY KEY, platform TEXT NOT NULL, name TEXT NOT NULL, description TEXT, ratePer1000 REAL NOT NULL, minQuantity INTEGER NOT NULL, maxQuantity INTEGER NOT NULL, enabled INTEGER DEFAULT 1, createdAt TEXT)`);
   await execute(`CREATE TABLE IF NOT EXISTS social_orders (id TEXT PRIMARY KEY, userEmail TEXT NOT NULL, serviceId TEXT NOT NULL, serviceName TEXT NOT NULL, platform TEXT NOT NULL, quantity INTEGER NOT NULL, targetUrl TEXT NOT NULL, amount REAL NOT NULL, status TEXT DEFAULT 'pending', providerOrderId TEXT, createdAt TEXT, updatedAt TEXT)`);
+  // Progress/fulfillment metadata used by the customer order-detail view. Existing databases are upgraded safely.
+  try { await execute(`ALTER TABLE social_services ADD COLUMN IF NOT EXISTS estimatedMinutes INTEGER DEFAULT 1440`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS targetType TEXT DEFAULT 'post'`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS openedAt TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS expectedCompleteAt TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS startCount INTEGER DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS deliveredQuantity INTEGER DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS remainingQuantity INTEGER DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS lastProgressAt TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE social_orders ADD COLUMN IF NOT EXISTS completedAt TEXT`); } catch (_) {}
+  try { await execute(`UPDATE social_services SET estimatedMinutes=1440 WHERE estimatedMinutes IS NULL`); } catch (_) {}
+  try { await execute(`UPDATE social_orders SET deliveredQuantity=CASE WHEN LOWER(status)='completed' THEN quantity ELSE COALESCE(deliveredQuantity,0) END, remainingQuantity=CASE WHEN LOWER(status)='completed' THEN 0 ELSE GREATEST(quantity-COALESCE(deliveredQuantity,0),0) END WHERE remainingQuantity IS NULL OR (remainingQuantity=0 AND LOWER(status) NOT IN ('completed','cancelled','failed'))`); } catch (_) {}
   try { const now=new Date().toISOString(); const seeds=[
     ['svc-fb-follow','Facebook','Facebook Page Followers','Grow your Facebook page audience.',1200,100,10000],
     ['svc-fb-like','Facebook','Facebook Page/Post Likes','Increase likes on eligible Facebook pages or posts.',800,100,50000],
