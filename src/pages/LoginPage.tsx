@@ -46,11 +46,11 @@ export const LoginPage: React.FC = () => {
               <Zap className="w-6 h-6 text-white fill-white" />
             </div>
             <span className="font-black text-2xl tracking-tight text-white">
-              JB Boster <span className="text-[#C13A5A]">CASH</span>
+              JB Boster
             </span>
           </Link>
           <h1 className="text-xl font-black text-white mt-2">Welcome Back!</h1>
-          <p className="text-xs text-slate-400 mt-1">Sign in to manage your social growth account</p>
+          <p className="text-xs text-slate-400 mt-1">Sign in to order and manage your social-media growth services</p>
         </div>
 
         {error && (
@@ -110,7 +110,7 @@ export const LoginPage: React.FC = () => {
             disabled={loading}
             className="w-full bg-gradient-to-r from-[#7A1831] to-[#A52A4A] hover:from-[#8F1D3A] hover:to-[#C13A5A] disabled:opacity-50 text-white font-black text-sm py-3.5 rounded-xl shadow-lg shadow-[#7A1831]/25 flex items-center justify-center gap-2 transition-all cursor-pointer mt-2"
           >
-            {loading ? 'Signing In...' : 'Sign In to JB BOOST'}
+            {loading ? 'Signing In...' : 'Sign In to JB Boster'}
             {!loading && <ArrowRight className="w-4 h-4" />}
           </button>
         </form>

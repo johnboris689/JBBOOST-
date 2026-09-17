@@ -87,16 +87,16 @@ function safeStringifyJsonField(val: any): string {
 function getJsonDb(): JsonData {
   if (!fs.existsSync(JSON_FILE)) {
     const defaultSettings: Record<string, string> = {
-      websiteName: "Nevo",
-      supportEmail: process.env.SUPPORT_EMAIL || "support@nevo.com",
+      websiteName: "JB Boster",
+      supportEmail: process.env.SUPPORT_EMAIL || "support@jbboster.com",
       supportPhone: process.env.SUPPORT_PHONE || "+2349162845073",
       whatsappNumber: process.env.WHATSAPP_NUMBER || "+2349162845073",
-      senderName: "Nevo",
+      senderName: "JB Boster",
       currency: "₦",
-      registrationBonus: "750",
+      registrationBonus: "0",
       minWithdrawal: "5000",
       maxWithdrawal: "500000",
-      referralRequired: "5",
+      referralRequired: "0",
       depositMinimum: "520",
       recoveryEnabled: "true",
       smsRecoveryEnabled: "true",
@@ -303,7 +303,7 @@ function getJsonDb(): JsonData {
         supportEmail: "support@nevo.com",
         supportPhone: "+2349162845073",
         whatsappNumber: "+2349162845073",
-        senderName: "Nevo",
+        senderName: "JB Boster",
         videoUrl: "",
         recoveryEnabled: "true",
         smsRecoveryEnabled: "true",
@@ -686,7 +686,25 @@ export async function initDb() {
 
   await execute(`CREATE TABLE IF NOT EXISTS social_services (id TEXT PRIMARY KEY, platform TEXT NOT NULL, name TEXT NOT NULL, description TEXT, ratePer1000 REAL NOT NULL, minQuantity INTEGER NOT NULL, maxQuantity INTEGER NOT NULL, enabled INTEGER DEFAULT 1, createdAt TEXT)`);
   await execute(`CREATE TABLE IF NOT EXISTS social_orders (id TEXT PRIMARY KEY, userEmail TEXT NOT NULL, serviceId TEXT NOT NULL, serviceName TEXT NOT NULL, platform TEXT NOT NULL, quantity INTEGER NOT NULL, targetUrl TEXT NOT NULL, amount REAL NOT NULL, status TEXT DEFAULT 'pending', providerOrderId TEXT, createdAt TEXT, updatedAt TEXT)`);
-  try { const sc=await getRow(`SELECT COUNT(*) as count FROM social_services`); if(!sc || Number(sc.count||0)===0){ const now=new Date().toISOString(); const seeds=[['svc-fb-follow','Facebook','Facebook Page Followers','Grow your Facebook page audience.',1200,100,10000],['svc-ig-follow','Instagram','Instagram Followers','Increase your Instagram followers.',1500,100,10000],['svc-ig-like','Instagram','Instagram Likes','Increase likes on eligible Instagram posts.',800,100,50000],['svc-tt-follow','TikTok','TikTok Followers','Grow your TikTok profile audience.',1800,100,10000],['svc-tt-view','TikTok','TikTok Video Views','Increase views on TikTok videos.',350,1000,1000000],['svc-yt-view','YouTube','YouTube Views','Increase views on eligible YouTube videos.',2500,100,100000],['svc-yt-sub','YouTube','YouTube Subscribers','Grow your YouTube channel subscriber count.',5000,100,10000],['svc-x-follow','X','X Followers','Grow your X profile audience.',1800,100,10000],['svc-tg-member','Telegram','Telegram Members','Grow eligible Telegram channels/groups.',2200,100,10000]]; for(const x of seeds) await execute(`INSERT INTO social_services (id,platform,name,description,ratePer1000,minQuantity,maxQuantity,enabled,createdAt) VALUES ($1,$2,$3,$4,$5,$6,$7,1,$8)`,[...x,now]); } } catch(e){ console.warn('[JB BOOST] Social service seed skipped:',e); }
+  try { const now=new Date().toISOString(); const seeds=[
+    ['svc-fb-follow','Facebook','Facebook Page Followers','Grow your Facebook page audience.',1200,100,10000],
+    ['svc-fb-like','Facebook','Facebook Page/Post Likes','Increase likes on eligible Facebook pages or posts.',800,100,50000],
+    ['svc-fb-comment','Facebook','Facebook Post Comments','Increase comments on eligible Facebook posts.',1000,10,5000],
+    ['svc-fb-share','Facebook','Facebook Post Shares','Increase shares on eligible Facebook posts.',1100,50,10000],
+    ['svc-ig-follow','Instagram','Instagram Followers','Increase your Instagram followers.',1500,100,10000],
+    ['svc-ig-like','Instagram','Instagram Likes','Increase likes on eligible Instagram posts.',800,100,50000],
+    ['svc-ig-comment','Instagram','Instagram Comments','Increase comments on eligible Instagram posts.',1200,10,5000],
+    ['svc-tt-follow','TikTok','TikTok Followers','Grow your TikTok profile audience.',1800,100,10000],
+    ['svc-tt-like','TikTok','TikTok Likes','Increase likes on eligible TikTok videos.',700,100,50000],
+    ['svc-tt-view','TikTok','TikTok Video Views','Increase views on TikTok videos.',350,1000,1000000],
+    ['svc-yt-view','YouTube','YouTube Views','Increase views on eligible YouTube videos.',2500,100,100000],
+    ['svc-yt-like','YouTube','YouTube Likes','Increase likes on eligible YouTube videos.',1800,100,50000],
+    ['svc-yt-sub','YouTube','YouTube Subscribers','Grow your YouTube channel subscriber count.',5000,100,10000],
+    ['svc-x-follow','X','X Followers','Grow your X profile audience.',1800,100,10000],
+    ['svc-x-like','X','X Post Likes','Increase likes on eligible X posts.',900,100,50000],
+    ['svc-tg-member','Telegram','Telegram Members','Grow eligible Telegram channels or groups.',2200,100,10000],
+    ['svc-tg-view','Telegram','Telegram Post Views','Increase views on eligible Telegram posts.',600,1000,1000000]
+  ]; for(const x of seeds) await execute(`INSERT INTO social_services (id,platform,name,description,ratePer1000,minQuantity,maxQuantity,enabled,createdAt) VALUES ($1,$2,$3,$4,$5,$6,$7,1,$8) ON CONFLICT(id) DO NOTHING`,[...x,now]); } catch(e){ console.warn('[JB BOOST] Social service seed skipped:',e); }
 
 
   await execute(`
@@ -834,16 +852,16 @@ export async function initDb() {
   const settingsCount = await getRow(`SELECT COUNT(*) as count FROM admin_settings`);
   if (!settingsCount || Number(settingsCount.count || 0) === 0) {
     const defaultSettings: Record<string, string> = {
-      websiteName: "Nevo",
-      supportEmail: process.env.SUPPORT_EMAIL || "support@nevo.com",
+      websiteName: "JB Boster",
+      supportEmail: process.env.SUPPORT_EMAIL || "support@jbboster.com",
       supportPhone: process.env.SUPPORT_PHONE || "+2349162845073",
       whatsappNumber: process.env.WHATSAPP_NUMBER || "+2349162845073",
-      senderName: "Nevo",
+      senderName: "JB Boster",
       currency: "₦",
-      registrationBonus: "750",
+      registrationBonus: "0",
       minWithdrawal: "5000",
       maxWithdrawal: "500000",
-      referralRequired: "5",
+      referralRequired: "0",
       depositMinimum: "520",
       aiSupportEnabled: "true",
       recoveryEnabled: "true",
@@ -864,9 +882,9 @@ export async function initDb() {
   // Nevo is the canonical product brand. Normalize any legacy SwiftPay setting
   // so old persisted configuration cannot reintroduce the previous brand.
   try {
-    await execute(`INSERT INTO admin_settings (key, value) VALUES ($1, $2) ON CONFLICT(key) DO UPDATE SET value = EXCLUDED.value`, ['websiteName', 'Nevo']);
+    await execute(`INSERT INTO admin_settings (key, value) VALUES ($1, $2) ON CONFLICT(key) DO UPDATE SET value = EXCLUDED.value`, ['websiteName', 'JB Boster']);
   } catch (e) {
-    try { await execute(`UPDATE admin_settings SET value = $1 WHERE key = $2`, ['Nevo', 'websiteName']); } catch (_) {}
+    try { await execute(`UPDATE admin_settings SET value = $1 WHERE key = $2`, ['JB Boster', 'websiteName']); } catch (_) {}
   }
 
   // Reinitialize the pool with App user (least privilege) for runtime database access

@@ -1,4 +1,4 @@
-# Nevo Installation
+# JB Boster Installation
 
 ## Local
 

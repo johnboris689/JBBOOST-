@@ -50,8 +50,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({ onClose, onSuccess
   const minWithdrawal = settings?.minWithdrawal || 5000;
   const withdrawalFee = 0; // ₦0 fee
 
-  const [eligibility, setEligibility] = useState({ successfulReferrals: 0, verifiedDeposit: false, canWithdraw: false });
-  const currentRefs = eligibility.successfulReferrals;
+  const [eligibility, setEligibility] = useState({ successfulReferrals: 0, verifiedDeposit: true, canWithdraw: true });
   const isWithdrawalLocked = !eligibility.canWithdraw;
 
   // Fetch banks on mount
@@ -137,8 +136,8 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({ onClose, onSuccess
 
     if (isWithdrawalLocked) {
       setError(currentRefs < 5
-        ? `Withdrawal locked. Complete 5 successful referrals (${currentRefs}/5) before withdrawals are available.`
-        : `Withdrawal locked. Make a verified KoraPay wallet deposit of at least ₦520 to unlock withdrawals. This is not an activation fee; it is a real wallet deposit that remains your money.`);
+        ? `Withdrawal is currently unavailable.`
+        : `Withdrawal is currently unavailable.`);
       return;
     }
 
@@ -264,8 +263,8 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({ onClose, onSuccess
                   <h4 className="text-xs font-bold text-[#C13A5A]">Withdrawal Locked</h4>
                   <p className="text-[11px] text-[#E6B8C3]/90 mt-0.5 leading-relaxed">
                     {currentRefs < 5
-                      ? 'Complete 5 successful referrals before withdrawals are available.'
-                      : 'Your 5 referrals are complete. Make a verified KoraPay wallet deposit of at least ₦520 to unlock withdrawals. This is not an activation fee; the deposit remains your money.'}
+                      ? 'Withdrawals are currently unavailable.'
+                      : 'Withdrawals are currently unavailable.'}
                   </p>
                 </div>
               </div>
@@ -281,7 +280,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({ onClose, onSuccess
                   <button
                     onClick={() => {
                       onClose();
-                      navigate('/referrals');
+                      navigate('/profile');
                     }}
                     className="w-full bg-gradient-to-r from-[#7A1831] to-[#A52A4A] hover:from-[#8F1D3A] hover:to-[#C13A5A] text-white font-extrabold text-xs py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
@@ -300,7 +299,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({ onClose, onSuccess
                     className="w-full bg-gradient-to-r from-[#7A1831] to-[#A52A4A] hover:from-[#8F1D3A] hover:to-[#C13A5A] text-white font-black text-xs py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <CreditCard className="w-4 h-4" />
-                    <span>Deposit ₦520+ via KoraPay</span>
+                    <span>Buy coins via KoraPay</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User as UserIcon, Mail, Phone, Calendar, ShieldCheck, LogOut, Copy, Check, Sparkles, CheckCircle2, Camera } from 'lucide-react';
+import { User as UserIcon, Mail, Calendar, ShieldCheck, LogOut, Check, Sparkles, CheckCircle2, Camera, Coins } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,6 @@ import { api } from '../lib/api';
 export const ProfilePage: React.FC = () => {
   const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
-  const [copied, setCopied] = useState(false);
   const [updatingAvatar, setUpdatingAvatar] = useState(false);
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -26,14 +25,6 @@ export const ProfilePage: React.FC = () => {
       setMsg({ type: 'error', text: err.message || 'Failed to update profile picture.' });
     } finally {
       setUploadingPhoto(false);
-    }
-  };
-
-  const copyCode = () => {
-    if (user?.referralCode) {
-      navigator.clipboard.writeText(user.referralCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -126,7 +117,7 @@ export const ProfilePage: React.FC = () => {
               <p className="text-xs text-slate-400 mt-0.5 font-mono">@{user?.username}</p>
               <div className="mt-2 flex items-center gap-3">
                 <span className="text-xs bg-[#A52A4A]/10 text-[#C13A5A] border border-[#A52A4A]/20 font-bold px-3 py-1 rounded-xl">
-                  Wallet: ₦{user?.walletBalance.toLocaleString('en-NG', { minimumFractionDigits: 2 })}
+                  <Coins className="w-3.5 h-3.5 inline mr-1"/> {Math.round(Number(user?.walletBalance || 0) * 2).toLocaleString()} coins
                 </span>
               </div>
             </div>
@@ -208,31 +199,6 @@ export const ProfilePage: React.FC = () => {
               Email Address
             </span>
             <p className="text-sm font-bold text-white truncate">{user?.email}</p>
-          </div>
-
-          <div className="nivo-glass-surface p-4 rounded-2xl border border-white/10 space-y-1">
-            <span className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1">
-              <Phone className="w-3.5 h-3.5 text-[#C13A5A]" />
-              Phone Number
-            </span>
-            <p className="text-sm font-bold text-white">{user?.phone || 'Not provided'}</p>
-          </div>
-
-          <div className="nivo-glass-surface p-4 rounded-2xl border border-white/10 space-y-1">
-            <span className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-[#C13A5A]" />
-              Referral Code
-            </span>
-            <div className="flex items-center justify-between">
-              <p className="text-base font-mono font-black text-[#C13A5A]">{user?.referralCode}</p>
-              <button
-                onClick={copyCode}
-                className="text-xs font-bold text-[#C13A5A] hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-[#A52A4A]" /> : <Copy className="w-3.5 h-3.5" />}
-                {copied ? 'Copied' : 'Copy'}
-              </button>
-            </div>
           </div>
 
           <div className="nivo-glass-surface p-4 rounded-2xl border border-white/10 space-y-1">

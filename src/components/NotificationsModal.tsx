@@ -292,10 +292,10 @@ export default function NotificationsModal({
                   {details.amount !== undefined && details.amount !== null && (
                     <div className="flex items-center justify-between py-1.5 border-b border-slate-800/60">
                       <span className="text-slate-400 flex items-center gap-1.5">
-                        <Coins className="h-3.5 w-3.5 text-teal-400" /> Amount
+                        <Coins className="h-3.5 w-3.5 text-[#df6f8e]" /> Coins
                       </span>
-                      <span className="text-sm font-bold text-teal-400 font-mono">
-                        ₦{typeof details.amount === 'number' ? details.amount.toLocaleString() : details.amount}
+                      <span className="text-sm font-bold text-[#df6f8e] font-mono">
+                        {typeof details.amount === 'number' ? Math.round(details.amount * 2).toLocaleString() : details.amount}
                       </span>
                     </div>
                   )}

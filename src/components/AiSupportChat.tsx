@@ -55,7 +55,7 @@ export default function AiSupportChat({ mode = 'embedded', onClose, onBack }: Ai
     suggestedActions: [
       { label: '💳 How to deposit funds?', action: 'How to deposit funds?' },
       { label: '💸 How to withdraw to bank?', action: 'How to withdraw to bank?' },
-      { label: '⏳ Deposit pending verification?', action: 'My bank transfer deposit is pending' },
+      { label: '⏳ Coin purchase pending?', action: 'My KoraPay coin purchase is pending' },
       { label: '🔑 How to reset security PIN?', action: 'How do I reset my security PIN?' },
       { label: '💬 Talk to WhatsApp Agent', action: 'Connect me to human WhatsApp support' }
     ]
@@ -143,7 +143,7 @@ export default function AiSupportChat({ mode = 'embedded', onClose, onBack }: Ai
     } catch (err: any) {
       console.error('[AI Chat] Request failed:', err);
       // Fallback client-side response if server request encounters network glitch
-      let fallbackText = `I apologize for the momentary network hiccup! Here is quick guidance:\n\n• **Deposits**: Tap Deposit, choose at least ₦520, continue, and complete the exact amount through the fresh KoraPay hosted checkout shown after you continue.\n• **Confirmation**: Your wallet is credited only after KoraPay confirms the payment server-side.\n• **Withdrawals**: Complete 5 successful referrals and make a verified deposit of at least ₦520.\n• **Human Support**: Tap below to speak directly with an official agent on WhatsApp.`;
+      let fallbackText = `I apologize for the momentary network hiccup! Here is quick guidance:\n\n• **Buy Coins**: Choose your coin amount and continue to the real KoraPay hosted checkout. Your coins are credited only after server-side confirmation.\n• **Confirmation**: Your wallet is credited only after KoraPay confirms the payment server-side.\n• **Orders**: Choose a platform, select a service, enter your quantity and target, and place the order with your coins.\n• **Human Support**: Tap below to speak directly with an official agent on WhatsApp.`;
       
       const errorMsg: ChatMessage = {
         id: `msg-err-${Date.now()}`,
@@ -173,9 +173,9 @@ export default function AiSupportChat({ mode = 'embedded', onClose, onBack }: Ai
 
   // Quick Action Suggestions Chips
   const quickChips = [
-    { label: '💳 How to Deposit', text: 'How do I make a deposit?' },
+    { label: '💳 How to Buy Coins', text: 'How do I buy coins?' },
     { label: '💸 Withdraw Cash', text: 'How do I transfer money to my bank account?' },
-    { label: '⏳ Deposit Pending', text: 'I made a bank transfer but my deposit is pending' },
+    { label: '⏳ Deposit Pending', text: 'I paid through KoraPay but my coins are pending' },
     { label: '🔑 Reset Security PIN', text: 'How do I reset my 4-digit transaction PIN?' },
     { label: '💬 Human Agent', text: 'I want to speak with a human support agent on WhatsApp' }
   ];

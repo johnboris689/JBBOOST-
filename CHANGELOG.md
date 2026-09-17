@@ -1,4 +1,4 @@
-# Nevo Changelog
+# JB Boster Changelog
 
 ## Current release — KoraPay-only wallet and database cleanup
 
@@ -15,4 +15,4 @@
 - Added profile-picture upload and database persistence.
 - Added a dedicated `nevo` PostgreSQL schema for production data.
 - Removed demo user/admin seeding.
-- Updated project documentation and environment configuration for Nevo.
+- Updated project documentation and environment configuration for JB Boster.
