@@ -181,14 +181,34 @@ function getNevoEmailTemplate(title: string, greeting: string, bodyText: string,
   `;
 }
 
-// Send Email (Simulated / In-App Logger)
+// Real email delivery for security-sensitive messages. OTP values are never logged.
 export async function sendEmail(to: string, subject: string, title: string, greeting: string, bodyText: string, otp: string): Promise<boolean> {
-  const settings = await getSettings();
+  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
+  const from = String(process.env.RESEND_FROM_EMAIL || '').trim();
+  if (!apiKey || !from) {
+    console.error('[Email] RESEND_API_KEY and RESEND_FROM_EMAIL must be configured.');
+    return false;
+  }
 
-  console.log(`[NEVO EMAIL DISPATCH] To: ${to} | Subject: "${subject}" | OTP: ${otp}`);
-  console.log(`[NEVO EMAIL BODY] ${title} - Hello ${greeting}, ${bodyText}`);
+  const safeText = `${title}\n\nHello ${greeting},\n\n${bodyText}\n\nOTP: ${otp}\n\nThis code expires in 10 minutes and can only be used once. If you did not request this, you can ignore this email.`;
+  const html = `<!doctype html><html><body style="font-family:Arial,sans-serif;background:#10070b;color:#f8eef1;padding:24px"><div style="max-width:560px;margin:auto;background:#1b0b12;border:1px solid #4b1728;border-radius:16px;padding:28px"><h2>${title}</h2><p>Hello ${greeting},</p><p>${bodyText}</p><div style="font-size:32px;font-weight:800;letter-spacing:8px;text-align:center;padding:18px;background:#2a0d18;border-radius:12px;margin:20px 0">${otp}</div><p style="color:#c9aeb7">Expires in 10 minutes. This code can only be used once.</p><p style="color:#c9aeb7">If you did not request a password reset, you can ignore this email.</p></div></body></html>`;
 
-  return true;
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to: [to], subject, text: safeText, html })
+    });
+    if (!response.ok) {
+      const detail = await response.text().catch(() => '');
+      console.error(`[Email] Resend delivery failed (${response.status}): ${detail}`);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('[Email] Resend request failed:', err);
+    return false;
+  }
 }
 
 // Send SMS (Simulated / In-App Logger)

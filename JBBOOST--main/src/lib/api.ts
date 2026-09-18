@@ -328,4 +328,52 @@ export const api = {
   requestAdminFulfillmentRefill: (id: string) => request<any>(`/api/admin/fulfillment/orders/${id}/refill`, { method: 'POST' }, true),
   cancelAdminFulfillmentOrder: (id: string) => request<any>(`/api/admin/fulfillment/orders/${id}/cancel`, { method: 'POST' }, true),
 
+  getAdminSocialOrders: () => request<any[]>('/api/admin/fulfillment/orders', {}, true),
+  syncAllAdminSocialOrders: () => request<any>('/api/admin/fulfillment/sync', { method: 'POST' }, true),
+  resendAdminSocialOrder: (id: string) => request<any>(`/api/admin/fulfillment/orders/${id}/sync`, { method: 'POST' }, true),
+  syncAdminSocialOrder: (id: string) => request<any>(`/api/admin/fulfillment/orders/${id}/sync`, { method: 'POST' }, true),
+  updateAdminSocialOrder: (id: string, payload: any) => request<any>(`/api/admin/fulfillment/orders/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }, true),
+
+  getAdminProviders: () => request<any[]>('/api/admin/fulfillment/catalogue', {}, true),
+  testAdminProvider: (_id?: string) => request<any>(`/api/admin/fulfillment/balance`, {}, true),
+  updateAdminProvider: (id: string, payload: any) => request<any>(`/api/admin/fulfillment/services/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }, true),
+  createAdminProvider: (payload: any) => request<any>('/api/admin/fulfillment/mappings', { method: 'POST', body: JSON.stringify(payload) }, true),
+  deleteAdminProvider: (id: string) => request<any>(`/api/admin/fulfillment/services/${id}`, { method: 'DELETE' }, true),
+  getAdminProviderServices: (_id?: string) => request<any[]>(`/api/admin/fulfillment/catalogue`, {}, true),
+  importAdminProviderService: (_id: string, payload: any) => request<any>('/api/admin/fulfillment/mappings', { method: 'POST', body: JSON.stringify(payload) }, true),
+  getAdminProviderLogs: (_params?: any) => request<any[]>('/api/admin/logs', {}, true),
+
+  // --- JB Boster Automated Agent Network ---
+  getAgentNetworkStats: () => request<{ success: boolean; stats: any }>('/api/admin/agent-network/stats', {}, true),
+  getAgentNetworkJobs: () => request<any[]>('/api/admin/agent-network/jobs', {}, true),
+  getAgentNetworkAgents: (params?: { platform?: string; status?: string; search?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.platform) q.set('platform', params.platform);
+    if (params?.status) q.set('status', params.status);
+    if (params?.search) q.set('search', params.search);
+    const qs = q.toString();
+    return request<any[]>(`/api/admin/agent-network/agents${qs ? `?${qs}` : ''}`, {}, true);
+  },
+  seedAgentFleet: (countPerPlatform?: number) =>
+    request<{ success: boolean; seeded: number; totalAgents: number }>('/api/admin/agent-network/agents/seed', {
+      method: 'POST',
+      body: JSON.stringify({ countPerPlatform }),
+    }, true),
+  createAgentAccount: (payload: { platform: string; handle: string; accountName?: string; capabilities?: string[] }) =>
+    request<{ success: boolean; id: string; agentIdentifier: string }>('/api/admin/agent-network/agents/create', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }, true),
+  toggleAgentStatus: (agentId: string) =>
+    request<{ success: boolean; status: string }>(`/api/admin/agent-network/agents/${encodeURIComponent(agentId)}/toggle`, {
+      method: 'POST',
+    }, true),
+  getAgentNetworkExecutions: () => request<any[]>('/api/admin/agent-network/executions', {}, true),
+  toggleAgentOrchestrator: (payload: { enabled?: boolean; speedMultiplier?: number }) =>
+    request<{ success: boolean; stats: any }>('/api/admin/agent-network/orchestrator/toggle', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }, true),
+  triggerAgentJobDispatch: (jobId: string) =>
+    request<any>(`/api/admin/agent-network/jobs/${encodeURIComponent(jobId)}/trigger`, { method: 'POST' }, true),
 };

@@ -1,0 +1,6 @@
+{
+  "name": "JB Boster",
+  "description": "Mobile-first Nigerian rewards and SMM fulfillment platform featuring an autonomous multi-agent bot network with deduplicated task execution and verified KoraPay deposits.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

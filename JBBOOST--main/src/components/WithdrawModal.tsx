@@ -52,6 +52,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({ onClose, onSuccess
 
   const [eligibility, setEligibility] = useState({ successfulReferrals: 0, verifiedDeposit: true, canWithdraw: true });
   const isWithdrawalLocked = !eligibility.canWithdraw;
+  const currentRefs = eligibility.successfulReferrals || 0;
 
   // Fetch banks on mount
   useEffect(() => {

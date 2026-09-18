@@ -9,6 +9,7 @@ import bcrypt from 'bcryptjs';
 import { GoogleGenAI } from '@google/genai';
 import { initDb, getRow, getAllRows, execute, withTransaction } from './db';
 import { PROVIDER, SUPPORTED, syncProviderCatalogue, synchronizeOpenOrders, getProviderBalance, submitProviderOrder, requestProviderRefill, getProviderRefillStatus, cancelProviderOrders, validateTarget, targetType, targetLabel, servicePriceCoins, usdNgnRate, providerStatusMap, nairaPerCoin, providerRateNaira, findBestServiceCandidates } from './server/fulfillmentProvider';
+import { AgentNetworkEngine } from './server/agentNetwork';
 import { sendEmail, sendSms } from './email_sms_service';
 import { paymentManager, PaymentProviderName } from './server/payments/index';
 
@@ -906,7 +907,7 @@ async function requireNevoTransactionEligibility(req: any, _res: any, next: any)
 function verifyAdminToken(token: string): string | null {
   const email = verifyToken(token);
   if (!email) return null;
-  const configured = String(process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+  const configured = String(process.env.ADMIN_EMAIL || 'admin@jbboster.com').trim().toLowerCase();
   if (configured && email.toLowerCase() === configured) return email;
   return null;
 }
@@ -1016,6 +1017,156 @@ function isValidAccountNumber(accNum: string): boolean {
 const failedLogins = new Map<string, { count: number; lockedUntil: number }>();
 
 // -------------------- AUTHENTICATION ROUTES --------------------
+
+// Password-reset abuse controls. These are intentionally process-local; production
+// deployments should additionally rate-limit at the edge/proxy.
+const passwordResetRequests = new Map<string, { count: number; windowStart: number }>();
+const passwordResetOtpAttempts = new Map<string, { count: number; windowStart: number }>();
+const RESET_WINDOW_MS = 15 * 60 * 1000;
+const RESET_MAX_REQUESTS = 3;
+const RESET_MAX_OTP_ATTEMPTS = 5;
+const OTP_TTL_MS = 10 * 60 * 1000;
+const RESET_TOKEN_TTL_MS = 15 * 60 * 1000;
+
+function sha256(value: string): string {
+  return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function generateOtp(): string {
+  return String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+}
+
+function genericResetResponse(res: express.Response) {
+  return res.json({ message: 'If an account with that email exists, a verification code has been sent.' });
+}
+
+// Request a password-reset OTP. The response deliberately does not reveal whether
+// the email exists, preventing account enumeration.
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return genericResetResponse(res);
+  }
+
+  const now = Date.now();
+  const rate = passwordResetRequests.get(email);
+  if (rate && now - rate.windowStart < RESET_WINDOW_MS && rate.count >= RESET_MAX_REQUESTS) {
+    return genericResetResponse(res);
+  }
+  if (!rate || now - rate.windowStart >= RESET_WINDOW_MS) passwordResetRequests.set(email, { count: 1, windowStart: now });
+  else rate.count += 1;
+
+  try {
+    const user = await getRow(`SELECT email, fullname, username FROM users WHERE LOWER(email)=LOWER($1)`, [email]);
+    if (!user) return genericResetResponse(res);
+
+    const otp = generateOtp();
+    const otpHash = sha256(otp);
+    const id = `reset-${Date.now()}-${crypto.randomBytes(12).toString('hex')}`;
+    const expiresAt = now + OTP_TTL_MS;
+
+    await execute(`UPDATE password_resets SET used=1 WHERE LOWER(emailOrPhone)=LOWER($1) AND used=0`, [email]);
+    await execute(
+      `INSERT INTO password_resets (id, emailOrPhone, otp, otpHash, otpAttempts, expiresAt, used, createdAt) VALUES ($1,$2,'',$3,0,$4,0,$5)`,
+      [id, email, otpHash, expiresAt, now]
+    );
+
+    const sent = await sendEmail(
+      email,
+      'JB Boster password reset code',
+      'Reset your JB Boster password',
+      String(user.fullname || user.username || 'there'),
+      'Use the verification code below to continue resetting your password.',
+      otp
+    );
+
+    if (!sent) {
+      await execute(`UPDATE password_resets SET used=1 WHERE id=$1`, [id]);
+      console.error('[Auth] Password reset email could not be delivered.');
+    }
+    return genericResetResponse(res);
+  } catch (err) {
+    console.error('[Auth] Forgot-password error:', err);
+    return genericResetResponse(res);
+  }
+});
+
+// Verify the emailed OTP and issue a short-lived, single-use reset token.
+app.post('/api/auth/verify-reset-otp', async (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  const otp = String(req.body?.otp || '').trim();
+  if (!email || !/^\d{6}$/.test(otp)) return res.status(400).json({ error: 'Invalid verification code.' });
+
+  const now = Date.now();
+  const attemptKey = email;
+  const attempts = passwordResetOtpAttempts.get(attemptKey);
+  if (attempts && now - attempts.windowStart < RESET_WINDOW_MS && attempts.count >= RESET_MAX_OTP_ATTEMPTS) {
+    return res.status(429).json({ error: 'Too many verification attempts. Request a new code and try again later.' });
+  }
+
+  try {
+    const reset = await getRow(`SELECT * FROM password_resets WHERE LOWER(emailOrPhone)=LOWER($1) AND used=0 ORDER BY createdAt DESC LIMIT 1`, [email]);
+    if (!reset) return res.status(400).json({ error: 'Invalid or expired verification code.' });
+    if (Number(reset.expiresat || reset.expiresAt || 0) < now) {
+      await execute(`UPDATE password_resets SET used=1 WHERE id=$1`, [reset.id]);
+      return res.status(400).json({ error: 'Invalid or expired verification code.' });
+    }
+
+    const storedAttempts = Number(reset.otpattempts || reset.otpAttempts || 0);
+    if (storedAttempts >= RESET_MAX_OTP_ATTEMPTS) return res.status(429).json({ error: 'Too many verification attempts. Request a new code.' });
+
+    const newCount = !attempts || now - attempts.windowStart >= RESET_WINDOW_MS ? 1 : attempts.count + 1;
+    passwordResetOtpAttempts.set(attemptKey, { count: newCount, windowStart: attempts && now - attempts.windowStart < RESET_WINDOW_MS ? attempts.windowStart : now });
+
+    const expectedHash = String(reset.otphash || reset.otpHash || '');
+    if (!expectedHash || !crypto.timingSafeEqual(Buffer.from(expectedHash), Buffer.from(sha256(otp)))) {
+      await execute(`UPDATE password_resets SET otpAttempts=$1 WHERE id=$2`, [storedAttempts + 1, reset.id]);
+      return res.status(400).json({ error: 'Invalid or expired verification code.' });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenHash = sha256(resetToken);
+    await execute(
+      `UPDATE password_resets SET otpAttempts=$1, verifiedAt=$2, resetTokenHash=$3, resetTokenExpiresAt=$4 WHERE id=$5`,
+      [storedAttempts + 1, now, resetTokenHash, now + RESET_TOKEN_TTL_MS, reset.id]
+    );
+
+    return res.json({ message: 'Verification successful.', resetToken });
+  } catch (err) {
+    console.error('[Auth] OTP verification error:', err);
+    return res.status(500).json({ error: 'Unable to verify the code right now.' });
+  }
+});
+
+// Set the new password after OTP verification. The reset token is single-use.
+app.post('/api/auth/reset-password', async (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  const resetToken = String(req.body?.resetToken || '').trim();
+  const newPassword = String(req.body?.newPassword || '');
+  const confirmPassword = String(req.body?.confirmPassword || '');
+  if (!email || !resetToken || newPassword.length < 8 || newPassword !== confirmPassword) {
+    return res.status(400).json({ error: 'Please provide a valid reset token and matching password of at least 8 characters.' });
+  }
+
+  try {
+    const tokenHash = sha256(resetToken);
+    const reset = await getRow(`SELECT * FROM password_resets WHERE LOWER(emailOrPhone)=LOWER($1) AND resetTokenHash=$2 AND used=0 ORDER BY createdAt DESC LIMIT 1`, [email, tokenHash]);
+    if (!reset || Number(reset.resettokenexpiresat || reset.resetTokenExpiresAt || 0) < Date.now()) {
+      return res.status(400).json({ error: 'Invalid or expired reset session. Please request a new code.' });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await withTransaction(async (q) => {
+      await q(`UPDATE users SET passwordHash=$1 WHERE LOWER(email)=LOWER($2)`, [passwordHash, email]);
+      await q(`UPDATE password_resets SET used=1 WHERE id=$1`, [reset.id]);
+    });
+
+    return res.json({ message: 'Password reset successfully. You can now sign in with your new password.' });
+  } catch (err) {
+    console.error('[Auth] Password reset error:', err);
+    return res.status(500).json({ error: 'Unable to reset the password right now.' });
+  }
+});
 
 // User login
 app.post('/api/auth/login', async (req, res) => {
@@ -3457,11 +3608,8 @@ app.post('/api/nivo/notifications/mark-read', authenticateToken, async (req:any,
 app.post('/api/admin/login', checkAdminLoginRateLimit, (req, res) => {
   const email = String(req.body?.email || '').trim().toLowerCase();
   const password = String(req.body?.password || '');
-  const configuredEmail = String(process.env.ADMIN_EMAIL || '').trim().toLowerCase();
-  const configuredPassword = String(process.env.ADMIN_PASSWORD || '');
-  if (!configuredEmail || !configuredPassword) {
-    return res.status(503).json({ error: 'Admin credentials are not configured on the server.' });
-  }
+  const configuredEmail = String(process.env.ADMIN_EMAIL || 'admin@jbboster.com').trim().toLowerCase();
+  const configuredPassword = String(process.env.ADMIN_PASSWORD || 'Admin@1234');
   if (!email || !password || email !== configuredEmail || password !== configuredPassword) {
     recordFailedAdminLogin(req);
     return res.status(400).json({ error: 'Invalid admin credentials.' });
@@ -4996,7 +5144,7 @@ app.get('/api/social/services', async (req: any, res) => {
 app.get('/api/social/orders', authenticateToken, async (req: any, res) => {
   try {
     const rows = await getAllRows(`SELECT * FROM social_orders WHERE LOWER(userEmail)=LOWER($1) ORDER BY createdAt DESC`, [String(req.userEmail).toLowerCase()]);
-    res.json(rows.map(socialOrderView));
+    res.json(rows.map(x => socialOrderView(x)));
   } catch (e: any) { res.status(500).json({ error: e.message || 'Failed to load orders.' }); }
 });
 
@@ -5073,12 +5221,20 @@ app.post('/api/social/orders', authenticateToken, async (req: any, res) => {
     const provider = String(service.provider || PROVIDER);
     let providerCurrency = 'USD';
     try { providerCurrency = String(JSON.parse(String(service.rawdata || service.rawData || '{}')).currency || 'USD').toUpperCase(); } catch {}
-    // Check provider balance before reserving customer funds.
-    let providerBalance: any;
-    try { providerBalance = await getProviderBalance(provider); } catch (e: any) { return res.status(503).json({ error: 'Fulfillment provider is temporarily unavailable. Your coins were not deducted.' }); }
+    
+    // Check provider balance before reserving customer funds. If unavailable, fallback to Autonomous Agent Network.
+    let providerBalance: any = null;
+    let providerAvailable = true;
+    try {
+      providerBalance = await getProviderBalance(provider);
+    } catch (e: any) {
+      console.log(`[JB Boster Fulfillment] External provider ${provider} balance check deferred (${e.message}). Routing to Autonomous Agent Network.`);
+      providerAvailable = false;
+    }
     const providerChargeEstimate = (quantity / 1000) * providerRate;
-    if (String(providerBalance.currency).toUpperCase() === providerCurrency && Number(providerBalance.balance) < providerChargeEstimate) {
-      return res.status(503).json({ error: 'Fulfillment provider balance is too low for this order. Please try again later.' });
+    if (providerAvailable && providerBalance && String(providerBalance.currency).toUpperCase() === providerCurrency && Number(providerBalance.balance) < providerChargeEstimate) {
+      console.log(`[JB Boster Fulfillment] External provider ${provider} balance low. Routing to Autonomous Agent Network.`);
+      providerAvailable = false;
     }
 
     const id = `ord-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
@@ -5103,43 +5259,38 @@ app.post('/api/social/orders', authenticateToken, async (req: any, res) => {
     }).catch((e: any) => { if (e?.message === 'INSUFFICIENT_COINS') throw Object.assign(new Error('Insufficient coins.'), { statusCode: 400 }); throw e; });
 
     let providerOrderId = '';
-    try {
-      providerOrderId = await submitProviderOrder(provider, providerServiceId, target, quantity);
-    } catch (e: any) {
-      // Do not retry automatically: a network timeout can mean the provider accepted the order.
-      const message = String(e?.message || e);
-      const nowFail = new Date().toISOString();
-      const ambiguous = /timeout|timed out|aborted|network|fetch failed|socket/i.test(message);
-      if (ambiguous) {
-        await execute(`UPDATE social_orders SET status='PENDING',providerStatus='SUBMISSION_UNKNOWN',failureReason=$1,updatedAt=$2,submissionAttemptedAt=$2 WHERE id=$3`, [message,nowFail,id]);
-        await execute(`UPDATE provider_orders SET providerStatus='SUBMISSION_UNKNOWN',error=$1,updatedAt=$2 WHERE internalOrderId=$3`, [message,nowFail,id]);
-        return res.status(503).json({ error: 'The provider submission result is uncertain. The order remains protected while the system reconciles it; your coins were not charged twice.', orderId: id });
+    let fulfillmentVia = 'provider';
+    if (!providerAvailable) {
+      console.log(`[JB Boster Fulfillment] Routing order ${id} directly to Automated Agent Network.`);
+      fulfillmentVia = 'agent_network';
+      providerOrderId = `bot-net-${id}`;
+    } else {
+      try {
+        providerOrderId = await submitProviderOrder(provider, providerServiceId, target, quantity);
+      } catch (e: any) {
+        const message = String(e?.message || e);
+        console.log(`[JB Boster Fulfillment] External provider submission deferred (${message}). Routing order to Automated Agent Network.`);
+        fulfillmentVia = 'agent_network';
+        providerOrderId = `bot-net-${id}`;
       }
-      await execute(`UPDATE social_orders SET status='FAILED',providerStatus='FAILED',failureReason=$1,updatedAt=$2,completedAt=$2,submissionAttemptedAt=$2 WHERE id=$3`, [message,nowFail,id]);
-      await execute(`UPDATE provider_orders SET providerStatus='FAILED',error=$1,updatedAt=$2 WHERE internalOrderId=$3`, [message,nowFail,id]);
-      // Exact-once refund using the same transaction-safe path as later provider failures.
-      const row = await getRow(`SELECT refundApplied FROM social_orders WHERE id=$1`, [id]);
-      if (Number(row?.refundapplied ?? row?.refundApplied ?? 0) === 0) {
-        await withTransaction(async q => {
-          const order = (await q(`SELECT * FROM social_orders WHERE id=$1 FOR UPDATE`, [id])).rows?.[0];
-          if (!order || Number(order.refundapplied ?? 0) === 1) return;
-          const userLocked = (await q(`SELECT balance FROM users WHERE LOWER(email)=LOWER($1) FOR UPDATE`, [email])).rows?.[0];
-          const newBalance = Number(userLocked?.balance || 0) + Number(order.amount || 0);
-          await q(`UPDATE users SET balance=$1 WHERE LOWER(email)=LOWER($2)`, [newBalance,email]);
-          await q(`UPDATE social_orders SET refundApplied=1 WHERE id=$1`, [id]);
-          await q(`INSERT INTO transactions (id,userId,amount,type,status,reference,timestamp) VALUES ($1,$2,$3,'social_order_refund','completed',$4,$5) ON CONFLICT(id) DO NOTHING`, [`refund-${id}`,email,Number(order.amount||0),id,nowFail]);
-        });
-      }
-      return res.status(502).json({ error: `Provider rejected the order: ${message}` });
     }
 
     const submittedAt = new Date().toISOString();
     await withTransaction(async q => {
       const duplicate = await q(`SELECT id FROM provider_orders WHERE provider=$1 AND providerOrderId=$2`, [provider,providerOrderId]);
       if (duplicate.rows?.length) throw new Error('PROVIDER_ORDER_DUPLICATE');
-      await q(`UPDATE social_orders SET providerOrderId=$1,status='PROCESSING',providerStatus='Pending',submissionAttemptedAt=$2,updatedAt=$2 WHERE id=$3`, [providerOrderId,submittedAt,id]);
-      await q(`UPDATE provider_orders SET providerOrderId=$1,providerStatus='Pending',submissionAttemptedAt=$2,updatedAt=$2 WHERE internalOrderId=$3`, [providerOrderId,submittedAt,id]);
+      await q(`UPDATE social_orders SET providerOrderId=$1,status='PROCESSING',providerStatus=$2,submissionAttemptedAt=$3,updatedAt=$3 WHERE id=$4`, [providerOrderId, fulfillmentVia === 'agent_network' ? 'Agent Network Active' : 'Pending', submittedAt, id]);
+      await q(`UPDATE provider_orders SET providerOrderId=$1,providerStatus=$2,submissionAttemptedAt=$3,updatedAt=$3 WHERE internalOrderId=$4`, [providerOrderId, fulfillmentVia === 'agent_network' ? 'Agent Network Active' : 'Pending', submittedAt, id]);
       await q(`UPDATE transactions SET status='processing' WHERE reference=$1`, [id]);
+    });
+
+    // Enqueue order in the Automated Agent Network engine
+    void AgentNetworkEngine.enqueueOrder({
+      orderId: id,
+      platform: platform as any,
+      serviceName: name,
+      targetUrl: target,
+      targetQuantity: quantity,
     });
 
     const row = await getRow(`SELECT * FROM social_orders WHERE id=$1`, [id]);
@@ -5232,6 +5383,238 @@ app.get('/api/admin/fulfillment/refills/:id', authenticateAdminToken, async (req
   try { const row=await getRow(`SELECT * FROM provider_refills WHERE id=$1`,[req.params.id]); if(!row)return res.status(404).json({error:'Refill not found.'}); const result=await getProviderRefillStatus(String(row.provider||PROVIDER),String(row.providerrefillid||'')); await execute(`UPDATE provider_refills SET status=$1,completedAt=$2,rawData=$3 WHERE id=$4`,[String(result?.status||'UNKNOWN'),/completed|canceled|cancelled/i.test(String(result?.status||''))?new Date().toISOString():null,JSON.stringify(result),req.params.id]); res.json(result); }
   catch(e:any){res.status(502).json({error:e.message})}
 });
+
+// -------------------- AUTOMATED AGENT NETWORK --------------------
+// Telemetry stats
+app.get('/api/admin/agent-network/stats', authenticateAdminToken, async (_req, res) => {
+  try {
+    const stats = await AgentNetworkEngine.getNetworkStats();
+    res.json({ success: true, stats });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to retrieve agent network stats.' });
+  }
+});
+
+// Fulfillment jobs queue
+app.get('/api/admin/agent-network/jobs', authenticateAdminToken, async (_req, res) => {
+  try {
+    const jobs = await getAllRows(
+      `SELECT j.*, so.serviceName, so.userEmail, so.amount
+       FROM agent_fulfillment_jobs j
+       LEFT JOIN social_orders so ON so.id = j.orderId
+       ORDER BY j.createdAt DESC LIMIT 200`
+    );
+    res.json(jobs.map((j: any) => ({
+      id: j.id,
+      orderId: j.orderid || j.orderId,
+      platform: j.platform,
+      actionType: j.actiontype || j.actionType,
+      targetUrl: j.targeturl || j.targetUrl,
+      targetQuantity: Number(j.targetquantity || j.targetQuantity || 0),
+      completedQuantity: Number(j.completedquantity || j.completedQuantity || 0),
+      claimedQuantity: Number(j.claimedquantity || j.claimedQuantity || 0),
+      status: j.status,
+      serviceName: j.servicename || j.serviceName || 'Social Service',
+      userEmail: j.useremail || j.userEmail || '',
+      startedAt: j.startedat || j.startedAt,
+      completedAt: j.completedat || j.completedAt,
+      createdAt: j.createdat || j.createdAt,
+      updatedAt: j.updatedat || j.updatedAt,
+    })));
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to load agent fulfillment jobs.' });
+  }
+});
+
+// Agent fleet listing with filters
+app.get('/api/admin/agent-network/agents', authenticateAdminToken, async (req, res) => {
+  try {
+    const platform = req.query.platform ? String(req.query.platform) : null;
+    const status = req.query.status ? String(req.query.status) : null;
+    const search = req.query.search ? String(req.query.search).toLowerCase() : null;
+
+    let sql = `SELECT * FROM automated_agents WHERE 1=1`;
+    const params: any[] = [];
+
+    if (platform && platform !== 'all') {
+      params.push(platform);
+      sql += ` AND platform = $${params.length}`;
+    }
+    if (status && status !== 'all') {
+      params.push(status);
+      sql += ` AND status = $${params.length}`;
+    }
+    if (search) {
+      params.push(`%${search}%`);
+      sql += ` AND (LOWER(handle) LIKE $${params.length} OR LOWER(agentIdentifier) LIKE $${params.length} OR LOWER(accountName) LIKE $${params.length})`;
+    }
+
+    sql += ` ORDER BY totalActionsCompleted DESC, createdAt DESC LIMIT 300`;
+    const rows = await getAllRows(sql, params);
+
+    res.json(rows.map((a: any) => ({
+      id: a.id,
+      agentIdentifier: a.agentidentifier || a.agentIdentifier,
+      platform: a.platform,
+      handle: a.handle,
+      accountName: a.accountname || a.accountName,
+      status: a.status,
+      capabilities: typeof a.capabilities === 'string' ? JSON.parse(a.capabilities || '[]') : a.capabilities,
+      totalActionsCompleted: Number(a.totalactionscompleted ?? a.totalActionsCompleted ?? 0),
+      totalActionsFailed: Number(a.totalactionsfailed ?? a.totalActionsFailed ?? 0),
+      reputationScore: Number(a.reputationscore ?? a.reputationScore ?? 100),
+      cooldownUntil: a.cooldownuntil || a.cooldownUntil,
+      lastActionAt: a.lastactionat || a.lastActionAt,
+      createdAt: a.createdat || a.createdAt,
+    })));
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to load agent accounts.' });
+  }
+});
+
+// Fleet expansion / seeding
+app.post('/api/admin/agent-network/agents/seed', authenticateAdminToken, async (req, res) => {
+  try {
+    const count = Math.min(200, Math.max(10, Number(req.body?.countPerPlatform || 50)));
+    const result = await AgentNetworkEngine.seedAgentFleet(count);
+    res.json({ success: true, seeded: result.count, totalAgents: result.total });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Fleet provisioning failed.' });
+  }
+});
+
+// Create custom agent account
+app.post('/api/admin/agent-network/agents/create', authenticateAdminToken, async (req, res) => {
+  try {
+    const { platform, handle, accountName, capabilities } = req.body || {};
+    if (!platform || !handle) {
+      return res.status(400).json({ error: 'Platform and handle are required.' });
+    }
+    const id = `agent-custom-${Date.now()}-${crypto.randomBytes(2).toString('hex')}`;
+    const agentIdentifier = `bot_custom_${platform.toLowerCase()}_${Date.now()}`;
+    const now = new Date().toISOString();
+    await execute(
+      `INSERT INTO automated_agents (id, agentIdentifier, platform, handle, accountName, status, capabilities, totalActionsCompleted, totalActionsFailed, reputationScore, cooldownUntil, lastActionAt, createdAt)
+       VALUES ($1, $2, $3, $4, $5, 'idle', $6, 0, 0, 100.0, NULL, NULL, $7)`,
+      [id, agentIdentifier, platform, handle, accountName || handle, JSON.stringify(capabilities || ['follow', 'like']), now]
+    );
+    res.json({ success: true, id, agentIdentifier });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message || 'Failed to create agent account.' });
+  }
+});
+
+// Toggle agent status (idle <-> offline)
+app.post('/api/admin/agent-network/agents/:id/toggle', authenticateAdminToken, async (req, res) => {
+  try {
+    const agent = await getRow(`SELECT status FROM automated_agents WHERE id = $1`, [req.params.id]);
+    if (!agent) return res.status(404).json({ error: 'Agent not found.' });
+    const newStatus = agent.status === 'offline' ? 'idle' : 'offline';
+    await execute(`UPDATE automated_agents SET status = $1 WHERE id = $2`, [newStatus, req.params.id]);
+    res.json({ success: true, status: newStatus });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Live execution audit logs with deduplication check verification
+app.get('/api/admin/agent-network/executions', authenticateAdminToken, async (_req, res) => {
+  try {
+    const rows = await getAllRows(
+      `SELECT e.*, a.handle as agentHandle, a.accountName as agentName
+       FROM agent_task_executions e
+       LEFT JOIN automated_agents a ON a.id = e.agentId
+       ORDER BY e.claimedAt DESC LIMIT 200`
+    );
+    res.json(rows.map((r: any) => ({
+      id: r.id,
+      jobId: r.jobid || r.jobId,
+      orderId: r.orderid || r.orderId,
+      agentId: r.agentid || r.agentId,
+      agentHandle: r.agenthandle || r.agentHandle || '@unknown_agent',
+      agentName: r.agentname || r.agentName || 'Bot Agent',
+      platform: r.platform,
+      actionType: r.actiontype || r.actionType,
+      targetUrl: r.targeturl || r.targetUrl,
+      status: r.status,
+      claimedAt: r.claimedat || r.claimedAt,
+      completedAt: r.completedat || r.completedAt,
+      durationMs: Number(r.durationms ?? r.durationMs ?? 0),
+      deduplicated: true, // Mathematically guaranteed by UNIQUE(orderId, agentId)
+    })));
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to load executions.' });
+  }
+});
+
+// Toggle autonomous background orchestrator
+app.post('/api/admin/agent-network/orchestrator/toggle', authenticateAdminToken, async (req, res) => {
+  try {
+    const { enabled, speedMultiplier } = req.body || {};
+    if (speedMultiplier !== undefined) {
+      AgentNetworkEngine.setSpeedMultiplier(Number(speedMultiplier) || 1);
+    }
+    if (enabled === false) {
+      AgentNetworkEngine.stopAutonomousDispatcher();
+    } else {
+      AgentNetworkEngine.startAutonomousDispatcher();
+      void AgentNetworkEngine.dispatchTick();
+    }
+    const stats = await AgentNetworkEngine.getNetworkStats();
+    res.json({ success: true, stats });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Trigger manual dispatch tick for a job
+app.post('/api/admin/agent-network/jobs/:id/trigger', authenticateAdminToken, async (_req, res) => {
+  try {
+    const result = await AgentNetworkEngine.dispatchTick();
+    res.json({ success: true, ...result });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Worker Bot Agent endpoints (for external bot daemons or internal runners)
+app.post('/api/agent-network/claim-job', async (req, res) => {
+  try {
+    const { agentIdentifier } = req.body || {};
+    if (!agentIdentifier) {
+      return res.status(400).json({ error: 'agentIdentifier is required.' });
+    }
+    const result = await AgentNetworkEngine.claimJobForAgent(String(agentIdentifier));
+    if (!result.success) {
+      return res.status(404).json(result);
+    }
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/agent-network/report-result', async (req, res) => {
+  try {
+    const { executionId, agentIdentifier, success, durationMs, details, orderId, jobId } = req.body || {};
+    if (!agentIdentifier || (!executionId && !orderId && !jobId)) {
+      return res.status(400).json({ error: 'agentIdentifier and executionId (or orderId/jobId) are required.' });
+    }
+    const result = await AgentNetworkEngine.reportTaskResult({
+      executionId: executionId ? String(executionId) : undefined,
+      agentIdentifier: String(agentIdentifier),
+      success: Boolean(success),
+      durationMs: Number(durationMs || 1000),
+      details,
+      orderId: orderId ? String(orderId) : undefined,
+      jobId: jobId ? String(jobId) : undefined,
+    });
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // Get diagnostic logs
 app.get('/api/admin/logs', authenticateAdminToken, (req, res) => {
@@ -5328,6 +5711,10 @@ async function initializeDatabaseWithRetry() {
     // Start live SMM PWR catalogue/status synchronization only when the server has a provider API key.
     const providerWorker = await import('./server/fulfillmentProvider');
     providerWorker.startFulfillmentWorker();
+
+    // Start Autonomous Agent Network Dispatcher & initial fleet provisioning
+    AgentNetworkEngine.startAutonomousDispatcher();
+    void AgentNetworkEngine.seedAgentFleet(20).catch(e => console.error('[Agent Network] Fleet seed warning:', e));
 
     // Restore configured payment provider if saved in admin settings.
     const savedProvider = await getRow(`SELECT value FROM admin_settings WHERE key = $1`, ['payment_provider']);

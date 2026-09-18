@@ -298,6 +298,11 @@ export interface SiteSettings {
   announcementBanner?: string;
   bannerNotice: string;
   supportEmail: string;
+  supportPhone?: string;
+  whatsappNumber?: string;
+  aboutUs?: string;
+  termsOfService?: string;
+  privacyPolicy?: string;
   telegramChannel?: string;
   telegramGroupUrl: string;
   paymentProvider?: 'korapay';

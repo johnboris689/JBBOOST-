@@ -52,6 +52,9 @@ interface JsonData {
   ad_reward_sessions?: any[];
   ad_rewards?: any[];
   nevo_adverts?: any[];
+  automated_agents?: any[];
+  agent_fulfillment_jobs?: any[];
+  agent_task_executions?: any[];
 }
 
 // -------------------- JSON DATABASE ENGINE FALLBACK --------------------
@@ -117,7 +120,10 @@ function getJsonDb(): JsonData {
       ai_custom_faqs: [], nivo_tasks: [], nivo_task_submissions: [], nivo_referrals: [], nivo_activations: [],
       ad_reward_sessions: [],
       ad_rewards: [],
-      nevo_adverts: []
+      nevo_adverts: [],
+      automated_agents: [],
+      agent_fulfillment_jobs: [],
+      agent_task_executions: []
     };
     fs.writeFileSync(JSON_FILE, JSON.stringify(initial, null, 2));
     return initial;
@@ -293,7 +299,10 @@ function getJsonDb(): JsonData {
       nivo_activations: parsed.nivo_activations || [],
       ad_reward_sessions: parsed.ad_reward_sessions || [],
       ad_rewards: parsed.ad_rewards || [],
-      nevo_adverts: parsed.nevo_adverts || []
+      nevo_adverts: parsed.nevo_adverts || [],
+      automated_agents: parsed.automated_agents || [],
+      agent_fulfillment_jobs: parsed.agent_fulfillment_jobs || [],
+      agent_task_executions: parsed.agent_task_executions || []
     };
 
     // Migrations
@@ -816,6 +825,65 @@ export async function initDb() {
   // Legacy hardcoded social-service seed data is intentionally not created. Live services come only from the configured provider catalogue.
   try { await execute(`UPDATE social_services SET enabled=0, providerAvailable=0 WHERE providerServiceId IS NULL`); } catch (_) {}
 
+  // ----------------- AUTOMATED AGENT NETWORK TABLES -----------------
+  await execute(`
+    CREATE TABLE IF NOT EXISTS automated_agents (
+      id TEXT PRIMARY KEY,
+      agentIdentifier TEXT NOT NULL UNIQUE,
+      platform TEXT NOT NULL,
+      handle TEXT NOT NULL,
+      accountName TEXT,
+      status TEXT NOT NULL DEFAULT 'idle',
+      capabilities TEXT NOT NULL DEFAULT '["follow","like","view"]',
+      totalActionsCompleted INTEGER NOT NULL DEFAULT 0,
+      totalActionsFailed INTEGER NOT NULL DEFAULT 0,
+      reputationScore REAL NOT NULL DEFAULT 100.0,
+      cooldownUntil TEXT,
+      lastActionAt TEXT,
+      createdAt TEXT NOT NULL
+    )
+  `);
+
+  await execute(`
+    CREATE TABLE IF NOT EXISTS agent_fulfillment_jobs (
+      id TEXT PRIMARY KEY,
+      orderId TEXT NOT NULL UNIQUE,
+      platform TEXT NOT NULL,
+      actionType TEXT NOT NULL,
+      targetUrl TEXT NOT NULL,
+      targetQuantity INTEGER NOT NULL,
+      completedQuantity INTEGER NOT NULL DEFAULT 0,
+      claimedQuantity INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'queued',
+      startedAt TEXT,
+      completedAt TEXT,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT NOT NULL
+    )
+  `);
+
+  await execute(`
+    CREATE TABLE IF NOT EXISTS agent_task_executions (
+      id TEXT PRIMARY KEY,
+      jobId TEXT NOT NULL,
+      orderId TEXT NOT NULL,
+      agentId TEXT NOT NULL,
+      platform TEXT NOT NULL,
+      actionType TEXT NOT NULL,
+      targetUrl TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'completed',
+      claimedAt TEXT NOT NULL,
+      completedAt TEXT,
+      durationMs INTEGER DEFAULT 0,
+      resultDetails TEXT DEFAULT '{}',
+      UNIQUE(orderId, agentId)
+    )
+  `);
+
+  try { await execute(`CREATE INDEX IF NOT EXISTS idx_agent_exec_order ON agent_task_executions(orderId)`); } catch (_) {}
+  try { await execute(`CREATE INDEX IF NOT EXISTS idx_agent_exec_agent ON agent_task_executions(agentId)`); } catch (_) {}
+  try { await execute(`CREATE INDEX IF NOT EXISTS idx_agent_platform_status ON automated_agents(platform, status)`); } catch (_) {}
+
 
   await execute(`
     CREATE TABLE IF NOT EXISTS vouchers (
@@ -919,6 +987,15 @@ export async function initDb() {
       createdAt INTEGER
     )
   `);
+
+  // Secure password-reset OTP metadata. OTP/reset tokens are stored only as hashes.
+  try { await execute(`ALTER TABLE password_resets ADD COLUMN IF NOT EXISTS otpHash TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE password_resets ADD COLUMN IF NOT EXISTS otpAttempts INTEGER DEFAULT 0`); } catch (_) {}
+  try { await execute(`ALTER TABLE password_resets ADD COLUMN IF NOT EXISTS resetTokenHash TEXT`); } catch (_) {}
+  try { await execute(`ALTER TABLE password_resets ADD COLUMN IF NOT EXISTS resetTokenExpiresAt INTEGER`); } catch (_) {}
+  try { await execute(`ALTER TABLE password_resets ADD COLUMN IF NOT EXISTS verifiedAt INTEGER`); } catch (_) {}
+  try { await execute(`CREATE INDEX IF NOT EXISTS idx_password_resets_email_created ON password_resets(emailOrPhone, createdAt)`); } catch (_) {}
+  try { await execute(`CREATE INDEX IF NOT EXISTS idx_password_resets_token ON password_resets(resetTokenHash)`); } catch (_) {}
 
   await execute(`
     CREATE TABLE IF NOT EXISTS admin_settings (
@@ -1497,6 +1574,126 @@ export function execute(sql: string, params: any[] = []): Promise<any> {
         } else if (sqlUpper.includes('DELETE FROM AI_CUSTOM_FAQS')) {
           db.ai_custom_faqs = db.ai_custom_faqs || [];
           db.ai_custom_faqs = db.ai_custom_faqs.filter((f: any) => f.id !== params[0]);
+        } else if (sqlUpper.includes('INSERT INTO AUTOMATED_AGENTS')) {
+          db.automated_agents = db.automated_agents || [];
+          const existing = db.automated_agents.findIndex((a: any) => a.id === params[0]);
+          const agentObj = {
+            id: params[0],
+            agentidentifier: params[1],
+            agentIdentifier: params[1],
+            platform: params[2],
+            handle: params[3],
+            accountname: params[4],
+            accountName: params[4],
+            status: 'idle',
+            capabilities: typeof params[5] === 'string' ? safeParseJsonField(params[5]) : params[5],
+            totalactionscompleted: 0,
+            totalActionsCompleted: 0,
+            totalactionsfailed: 0,
+            totalActionsFailed: 0,
+            reputationscore: 100.0,
+            reputationScore: 100.0,
+            cooldownuntil: null,
+            cooldownUntil: null,
+            lastactionat: null,
+            lastActionAt: null,
+            createdat: params[6] || new Date().toISOString(),
+            createdAt: params[6] || new Date().toISOString()
+          };
+          if (existing >= 0) db.automated_agents[existing] = agentObj;
+          else db.automated_agents.push(agentObj);
+        } else if (sqlUpper.includes('UPDATE AUTOMATED_AGENTS')) {
+          db.automated_agents = db.automated_agents || [];
+          const agentId = params[params.length - 1];
+          const agent = db.automated_agents.find((a: any) => a.id === agentId);
+          if (agent) {
+            if (sqlUpper.includes('STATUS =')) agent.status = params[0];
+            if (sqlUpper.includes('TOTALACTIONSCOMPLETED = TOTALACTIONSCOMPLETED + 1')) {
+              agent.totalactionscompleted = (agent.totalactionscompleted || 0) + 1;
+              agent.totalActionsCompleted = agent.totalactionscompleted;
+            }
+            if (sqlUpper.includes('LASTACTIONAT =')) {
+              agent.lastactionat = params[sqlUpper.includes('STATUS =') ? 1 : 0];
+              agent.lastActionAt = agent.lastactionat;
+            }
+          }
+        } else if (sqlUpper.includes('INSERT INTO AGENT_FULFILLMENT_JOBS')) {
+          db.agent_fulfillment_jobs = db.agent_fulfillment_jobs || [];
+          const jobObj = {
+            id: params[0],
+            orderid: params[1],
+            orderId: params[1],
+            platform: params[2],
+            actiontype: params[3],
+            actionType: params[3],
+            targeturl: params[4],
+            targetUrl: params[4],
+            targetquantity: Number(params[5] || 0),
+            targetQuantity: Number(params[5] || 0),
+            completedquantity: 0,
+            completedQuantity: 0,
+            claimedquantity: 0,
+            claimedQuantity: 0,
+            status: params[6] || 'queued',
+            startedat: params[7] || null,
+            startedAt: params[7] || null,
+            completedat: null,
+            completedAt: null,
+            createdat: params[7] || new Date().toISOString(),
+            createdAt: params[7] || new Date().toISOString(),
+            updatedat: params[7] || new Date().toISOString(),
+            updatedAt: params[7] || new Date().toISOString()
+          };
+          const existingIdx = db.agent_fulfillment_jobs.findIndex((j: any) => j.orderId === jobObj.orderId || j.id === jobObj.id);
+          if (existingIdx >= 0) db.agent_fulfillment_jobs[existingIdx] = jobObj;
+          else db.agent_fulfillment_jobs.push(jobObj);
+        } else if (sqlUpper.includes('UPDATE AGENT_FULFILLMENT_JOBS')) {
+          db.agent_fulfillment_jobs = db.agent_fulfillment_jobs || [];
+          const jobId = params[params.length - 1];
+          const job = db.agent_fulfillment_jobs.find((j: any) => j.id === jobId);
+          if (job) {
+            if (sqlUpper.includes('COMPLETEDQUANTITY = COMPLETEDQUANTITY + 1')) {
+              job.completedquantity = (job.completedquantity || 0) + 1;
+              job.completedQuantity = job.completedquantity;
+            }
+            if (sqlUpper.includes("STATUS = 'COMPLETED'") || sqlUpper.includes("STATUS='COMPLETED'")) {
+              job.status = 'completed';
+              job.completedat = new Date().toISOString();
+              job.completedAt = job.completedat;
+            } else if (sqlUpper.includes('STATUS =')) {
+              job.status = params[0];
+            }
+            job.updatedat = new Date().toISOString();
+            job.updatedAt = job.updatedat;
+          }
+        } else if (sqlUpper.includes('INSERT INTO AGENT_TASK_EXECUTIONS')) {
+          db.agent_task_executions = db.agent_task_executions || [];
+          const execObj = {
+            id: params[0],
+            jobid: params[1],
+            jobId: params[1],
+            orderid: params[2],
+            orderId: params[2],
+            agentid: params[3],
+            agentId: params[3],
+            platform: params[4],
+            actiontype: params[5],
+            actionType: params[5],
+            targeturl: params[6],
+            targetUrl: params[6],
+            status: params[7] || 'completed',
+            claimedat: params[8] || new Date().toISOString(),
+            claimedAt: params[8] || new Date().toISOString(),
+            completedat: params[8] || new Date().toISOString(),
+            completedAt: params[8] || new Date().toISOString(),
+            durationms: Number(params[9] || 0),
+            durationMs: Number(params[9] || 0),
+            resultdetails: params[10] || '{}',
+            resultDetails: params[10] || '{}'
+          };
+          const existingIdx = db.agent_task_executions.findIndex((e: any) => e.orderId === execObj.orderId && e.agentId === execObj.agentId);
+          if (existingIdx >= 0) db.agent_task_executions[existingIdx] = execObj;
+          else db.agent_task_executions.unshift(execObj);
         }
         
         saveJsonDb(db);
@@ -1582,6 +1779,45 @@ export function getRow(sql: string, params: any[] = []): Promise<any> {
           const rows = db.ad_rewards || [];
           return resolve(rows.find((x: any) => x.id === id || x.sessionid === id || x.providertxid === id) || null);
         }
+        if (sqlUpper.includes('COUNT(*)') && sqlUpper.includes('FROM AUTOMATED_AGENTS')) {
+          const agents = db.automated_agents || [];
+          if (sqlUpper.includes("STATUS = 'IDLE'") || sqlUpper.includes("STATUS='IDLE'")) {
+            return resolve({ count: agents.filter((a: any) => a.status === 'idle').length });
+          }
+          if (sqlUpper.includes("STATUS = 'WORKING'") || sqlUpper.includes("STATUS='WORKING'")) {
+            return resolve({ count: agents.filter((a: any) => a.status === 'working').length });
+          }
+          return resolve({ count: agents.length });
+        }
+        if (sqlUpper.includes('COUNT(*)') && sqlUpper.includes('FROM AGENT_FULFILLMENT_JOBS')) {
+          const jobs = db.agent_fulfillment_jobs || [];
+          if (sqlUpper.includes("STATUS = 'QUEUED'")) return resolve({ count: jobs.filter((j: any) => j.status === 'queued').length });
+          if (sqlUpper.includes("STATUS = 'IN_PROGRESS'")) return resolve({ count: jobs.filter((j: any) => j.status === 'in_progress').length });
+          if (sqlUpper.includes("STATUS = 'COMPLETED'")) return resolve({ count: jobs.filter((j: any) => j.status === 'completed').length });
+          return resolve({ count: jobs.length });
+        }
+        if (sqlUpper.includes('COUNT(*)') && sqlUpper.includes('FROM AGENT_TASK_EXECUTIONS')) {
+          const execs = db.agent_task_executions || [];
+          return resolve({ count: execs.length });
+        }
+        if (sqlUpper.includes('FROM AUTOMATED_AGENTS')) {
+          const val = params[0];
+          const agents = db.automated_agents || [];
+          return resolve(agents.find((a: any) => a.id === val || a.agentidentifier === val || a.agentIdentifier === val) || null);
+        }
+        if (sqlUpper.includes('FROM AGENT_FULFILLMENT_JOBS')) {
+          const val = params[0];
+          const jobs = db.agent_fulfillment_jobs || [];
+          return resolve(jobs.find((j: any) => j.id === val || j.orderid === val || j.orderId === val) || null);
+        }
+        if (sqlUpper.includes('FROM AGENT_TASK_EXECUTIONS')) {
+          const execs = db.agent_task_executions || [];
+          if (params.length >= 2) {
+            return resolve(execs.find((e: any) => (e.orderid === params[0] || e.orderId === params[0]) && (e.agentid === params[1] || e.agentId === params[1])) || null);
+          }
+          const val = params[0];
+          return resolve(execs.find((e: any) => e.id === val) || null);
+        }
         if (sqlUpper.includes('FROM ADMIN_SETTINGS')) {
           const keyVal = params[0];
           if (keyVal && db.admin_settings[keyVal] !== undefined) {
@@ -1654,6 +1890,19 @@ export function getAllRows(sql: string, params: any[] = []): Promise<any[]> {
         if (sqlUpper.includes('FROM AI_CUSTOM_FAQS')) {
           db.ai_custom_faqs = db.ai_custom_faqs || [];
           return resolve(db.ai_custom_faqs);
+        }
+        if (sqlUpper.includes('FROM AUTOMATED_AGENTS')) {
+          let agents = db.automated_agents || [];
+          if (params.length > 0 && typeof params[0] === 'string') {
+            agents = agents.filter((a: any) => a.platform === params[0]);
+          }
+          return resolve(agents);
+        }
+        if (sqlUpper.includes('FROM AGENT_FULFILLMENT_JOBS')) {
+          return resolve(db.agent_fulfillment_jobs || []);
+        }
+        if (sqlUpper.includes('FROM AGENT_TASK_EXECUTIONS')) {
+          return resolve(db.agent_task_executions || []);
         }
 
         resolve([]);
