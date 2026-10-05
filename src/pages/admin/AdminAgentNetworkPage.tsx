@@ -334,48 +334,6 @@ export const AdminAgentNetworkPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 6-Platform Fleet Capacity Breakdown (500,000 per platform = 3,000,000 Total Fleet) */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-white/[0.04] via-white/[0.02] to-transparent border border-white/10">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-[#df6f8e]" />
-            <span className="text-xs font-black uppercase tracking-wider text-white">
-              Multi-Platform Agent Allocation
-            </span>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#a72b50]/20 text-[#df6f8e] border border-[#a72b50]/30">
-              500,000 Per Platform
-            </span>
-          </div>
-          <span className="text-[11px] text-slate-400 font-medium">
-            3,000,000 Total Distinct Agent Pool Across All 6 Supported Networks
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-          {[
-            { name: 'Instagram', code: 'IG', color: 'text-pink-400', count: stats?.agents?.byPlatform?.Instagram ?? 500000, cap: 'Follow, Like, Reel View, Comment' },
-            { name: 'TikTok', code: 'TT', color: 'text-cyan-400', count: stats?.agents?.byPlatform?.TikTok ?? 500000, cap: 'Follow, Like, Video View, Share' },
-            { name: 'YouTube', code: 'YT', color: 'text-red-400', count: stats?.agents?.byPlatform?.YouTube ?? 500000, cap: 'Subscriber, Like, Watch Time' },
-            { name: 'Facebook', code: 'FB', color: 'text-blue-400', count: stats?.agents?.byPlatform?.Facebook ?? 500000, cap: 'Follow, Page Like, Reaction' },
-            { name: 'X / Twitter', code: 'X', color: 'text-slate-200', count: stats?.agents?.byPlatform?.X ?? 500000, cap: 'Follow, Repost, Like' },
-            { name: 'Telegram', code: 'TG', color: 'text-sky-400', count: stats?.agents?.byPlatform?.Telegram ?? 500000, cap: 'Channel Member, Group Join' },
-          ].map((p) => (
-            <div key={p.name} className="p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-300">{p.name}</span>
-                <span className={`text-[10px] font-mono font-black ${p.color}`}>{p.code}</span>
-              </div>
-              <div className="mt-1 text-base font-black text-white font-mono">
-                {p.count.toLocaleString()}
-              </div>
-              <div className="text-[9px] text-slate-500 truncate mt-0.5" title={p.cap}>
-                {p.cap}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Navigation Tabs */}
       <div className="flex items-center gap-2 border-b border-white/10 pb-2">
         <button

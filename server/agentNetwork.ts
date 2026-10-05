@@ -53,9 +53,6 @@ export interface AgentTaskExecution {
 }
 
 // Global engine configuration & state
-export const FLEET_CAPACITY_PER_PLATFORM = 500000;
-export const SUPPORTED_PLATFORMS: AgentPlatform[] = ['Instagram', 'TikTok', 'YouTube', 'Facebook', 'X', 'Telegram'];
-
 let orchestratorRunning = false;
 let orchestratorIntervalTimer: NodeJS.Timeout | null = null;
 let orchestratorSpeedMultiplier = 1; // 1x to 10x dispatch rate
@@ -79,7 +76,7 @@ const TOPICS = [
   'trends', 'hub', 'media', 'shots', 'prime', 'focus', 'official', 'zone', 'waves'
 ];
 
-export function generateHandle(platform: AgentPlatform, index: number): string {
+function generateHandle(platform: AgentPlatform, index: number): string {
   const f = FIRST_NAMES[index % FIRST_NAMES.length].toLowerCase();
   const l = LAST_NAMES[(index * 3) % LAST_NAMES.length].toLowerCase();
   const t = TOPICS[(index * 7) % TOPICS.length];
@@ -89,7 +86,7 @@ export function generateHandle(platform: AgentPlatform, index: number): string {
     case 'Instagram':
       return `@${f}_${l}_${t}${randNum}`;
     case 'TikTok':
-      return `@${f}.${l}.${t}${index % 1000}`;
+      return `@${f}.${l}.${t}`;
     case 'YouTube':
       return `@${f}${l}${randNum}Channel`;
     case 'X':
@@ -101,19 +98,6 @@ export function generateHandle(platform: AgentPlatform, index: number): string {
     default:
       return `@agent_${f}_${randNum}`;
   }
-}
-
-export function getPoolAgentByIndex(platform: AgentPlatform, index: number) {
-  const pCode = platform.toLowerCase().slice(0, 2);
-  const id = `agent-${pCode}-${index.toString().padStart(6, '0')}`;
-  const agentIdentifier = `bot_${platform.toLowerCase()}_${index.toString().padStart(6, '0')}`;
-  const handle = generateHandle(platform, index);
-  const name = `${FIRST_NAMES[index % FIRST_NAMES.length]} ${LAST_NAMES[(index * 3) % LAST_NAMES.length]}`;
-  const capabilities = ['follow', 'like', 'view', 'share', 'reaction'];
-  if (platform === 'YouTube') capabilities.push('subscriber');
-  if (platform === 'Telegram') capabilities.push('member');
-  if (platform === 'Instagram' || platform === 'TikTok') capabilities.push('comment');
-  return { id, agentIdentifier, platform, handle, accountName: name, capabilities };
 }
 
 function normalizeActionType(serviceName: string, platform: string): string {
@@ -553,31 +537,6 @@ export class AgentNetworkEngine {
           })
           .slice(0, toDispatch);
 
-        if (!availableAgents || availableAgents.length === 0 || availableAgents.length < toDispatch) {
-          // Dynamically draw unique agents from the 500,000 platform pool
-          let poolIndex = (orderExecs ? orderExecs.length : 0) + 1;
-          const pCode = platform.toLowerCase().slice(0, 2);
-          const nowStr = new Date().toISOString();
-
-          while (availableAgents.length < toDispatch && poolIndex <= FLEET_CAPACITY_PER_PLATFORM) {
-            const candidateId = `agent-${pCode}-${poolIndex.toString().padStart(6, '0')}`;
-            if (!alreadyExecutedAgentIds.has(candidateId)) {
-              const poolAgent = getPoolAgentByIndex(platform, poolIndex);
-              try {
-                await execute(
-                  `INSERT INTO automated_agents (id, agentIdentifier, platform, handle, accountName, status, capabilities, totalActionsCompleted, totalActionsFailed, reputationScore, cooldownUntil, lastActionAt, createdAt)
-                   VALUES ($1, $2, $3, $4, $5, 'idle', $6, 0, 0, 100.0, NULL, NULL, $7)
-                   ON CONFLICT(id) DO NOTHING`,
-                  [poolAgent.id, poolAgent.agentIdentifier, platform, poolAgent.handle, poolAgent.accountName, JSON.stringify(poolAgent.capabilities), nowStr]
-                );
-                availableAgents.push(poolAgent);
-                alreadyExecutedAgentIds.add(candidateId);
-              } catch (_) {}
-            }
-            poolIndex++;
-          }
-        }
-
         if (!availableAgents || availableAgents.length === 0) {
           continue;
         }
@@ -710,9 +669,13 @@ export class AgentNetworkEngine {
    * Get live telemetry stats for the Agent Network.
    */
   static async getNetworkStats(): Promise<any> {
-    const totalFleetCapacity = FLEET_CAPACITY_PER_PLATFORM * SUPPORTED_PLATFORMS.length; // 3,000,000 agents (500,000 per platform)
-    const materializedCountRow = await getRow(`SELECT COUNT(*) as count FROM automated_agents`);
+    const totalAgentsRow = await getRow(`SELECT COUNT(*) as count FROM automated_agents`);
+    const idleAgentsRow = await getRow(`SELECT COUNT(*) as count FROM automated_agents WHERE status = 'idle'`);
     const workingAgentsRow = await getRow(`SELECT COUNT(*) as count FROM automated_agents WHERE status = 'working'`);
+
+    const platformCounts = await getAllRows(
+      `SELECT platform, COUNT(*) as count FROM automated_agents GROUP BY platform`
+    );
 
     const jobsQueuedRow = await getRow(`SELECT COUNT(*) as count FROM agent_fulfillment_jobs WHERE status = 'queued'`);
     const jobsActiveRow = await getRow(`SELECT COUNT(*) as count FROM agent_fulfillment_jobs WHERE status = 'in_progress'`);
@@ -723,32 +686,22 @@ export class AgentNetworkEngine {
       `SELECT COUNT(DISTINCT orderId || ':' || agentId) as count FROM agent_task_executions WHERE status = 'completed'`
     );
 
-    const workingCount = Number(workingAgentsRow?.count || 0);
-    const idleCount = Math.max(0, totalFleetCapacity - workingCount);
-
-    const platformBreakdown: Record<string, number> = {};
-    for (const p of SUPPORTED_PLATFORMS) {
-      platformBreakdown[p] = FLEET_CAPACITY_PER_PLATFORM;
-    }
-
     return {
       orchestratorRunning,
       speedMultiplier: orchestratorSpeedMultiplier,
-      fleetCapacityPerPlatform: FLEET_CAPACITY_PER_PLATFORM,
-      totalCapacity: totalFleetCapacity,
-      materializedInDb: Number(materializedCountRow?.count || 0),
       agents: {
-        total: totalFleetCapacity,
-        idle: idleCount,
-        working: workingCount,
-        capacityPerPlatform: FLEET_CAPACITY_PER_PLATFORM,
-        byPlatform: platformBreakdown,
+        total: Number(totalAgentsRow?.count || 0),
+        idle: Number(idleAgentsRow?.count || 0),
+        working: Number(workingAgentsRow?.count || 0),
+        byPlatform: platformCounts.reduce((acc: any, cur: any) => {
+          acc[cur.platform] = Number(cur.count || 0);
+          return acc;
+        }, {}),
       },
       jobs: {
         queued: Number(jobsQueuedRow?.count || 0),
         inProgress: Number(jobsActiveRow?.count || 0),
         completed: Number(jobsCompletedRow?.count || 0),
-        total: Number(jobsQueuedRow?.count || 0) + Number(jobsActiveRow?.count || 0) + Number(jobsCompletedRow?.count || 0),
       },
       executions: {
         totalCompleted: Number(totalExecutionsRow?.count || 0),

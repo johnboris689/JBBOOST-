@@ -21,18 +21,6 @@
   },
   "logs": [
     {
-      "id": "log-1789799273980-e70fe5e5",
-      "timestamp": "2026-09-19T06:27:53.980Z",
-      "message": "Admin logged in successfully: admin@jbboster.com",
-      "type": "INFO"
-    },
-    {
-      "id": "log-1789797307316-8bf03470",
-      "timestamp": "2026-09-19T05:55:07.316Z",
-      "message": "Admin logged in successfully: admin@jbboster.com",
-      "type": "INFO"
-    },
-    {
       "id": "log-1789679878830-31c2b2d0",
       "timestamp": "2026-09-17T21:17:58.830Z",
       "message": "Admin logged in successfully: admin@jbboster.com",
@@ -133,13 +121,13 @@
   "automated_agents": [
     {
       "id": "agent-in-0001",
-      "agentidentifier": "bot_instagram_0001_8d45",
-      "agentIdentifier": "bot_instagram_0001_8d45",
+      "agentidentifier": "bot_instagram_0001_95e9",
+      "agentIdentifier": "bot_instagram_0001_95e9",
       "platform": "Instagram",
       "handle": "@chioma_bello_reels113",
       "accountname": "Chioma Bello",
       "accountName": "Chioma Bello",
-      "status": "idle",
+      "status": "2026-09-17T21:17:35.114Z",
       "capabilities": [
         "follow",
         "like",
@@ -148,23 +136,23 @@
         "reaction",
         "comment"
       ],
-      "totalactionscompleted": 0,
-      "totalActionsCompleted": 0,
+      "totalactionscompleted": 1,
+      "totalActionsCompleted": 1,
       "totalactionsfailed": 0,
       "totalActionsFailed": 0,
       "reputationscore": 100,
       "reputationScore": 100,
       "cooldownuntil": null,
       "cooldownUntil": null,
-      "lastactionat": null,
-      "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "lastactionat": "2026-09-17T21:17:20.088Z",
+      "lastActionAt": "2026-09-17T21:17:20.088Z",
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0002",
-      "agentidentifier": "bot_instagram_0002_b33c",
-      "agentIdentifier": "bot_instagram_0002_b33c",
+      "agentidentifier": "bot_instagram_0002_e3b7",
+      "agentIdentifier": "bot_instagram_0002_e3b7",
       "platform": "Instagram",
       "handle": "@zainab_williams_creatives139",
       "accountname": "Ibrahim Nwosu",
@@ -188,18 +176,18 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0003",
-      "agentidentifier": "bot_instagram_0003_6888",
-      "agentIdentifier": "bot_instagram_0003_6888",
+      "agentidentifier": "bot_instagram_0003_3072",
+      "agentIdentifier": "bot_instagram_0003_3072",
       "platform": "Instagram",
       "handle": "@blessing_mustapha_daily165",
       "accountname": "Zainab Williams",
       "accountName": "Zainab Williams",
-      "status": "idle",
+      "status": "2026-09-17T21:17:20.353Z",
       "capabilities": [
         "follow",
         "like",
@@ -208,28 +196,28 @@
         "reaction",
         "comment"
       ],
-      "totalactionscompleted": 0,
-      "totalActionsCompleted": 0,
+      "totalactionscompleted": 1,
+      "totalActionsCompleted": 1,
       "totalactionsfailed": 0,
       "totalActionsFailed": 0,
       "reputationscore": 100,
       "reputationScore": 100,
       "cooldownuntil": null,
       "cooldownUntil": null,
-      "lastactionat": null,
-      "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "lastactionat": "agent-in-0003",
+      "lastActionAt": "agent-in-0003",
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0004",
-      "agentidentifier": "bot_instagram_0004_9766",
-      "agentIdentifier": "bot_instagram_0004_9766",
+      "agentidentifier": "bot_instagram_0004_8a49",
+      "agentIdentifier": "bot_instagram_0004_8a49",
       "platform": "Instagram",
       "handle": "@fatima_brown_zone191",
       "accountname": "Chinedu Suleiman",
       "accountName": "Chinedu Suleiman",
-      "status": "idle",
+      "status": "2026-09-17T21:17:59.497Z",
       "capabilities": [
         "follow",
         "like",
@@ -238,23 +226,23 @@
         "reaction",
         "comment"
       ],
-      "totalactionscompleted": 0,
-      "totalActionsCompleted": 0,
+      "totalactionscompleted": 1,
+      "totalActionsCompleted": 1,
       "totalactionsfailed": 0,
       "totalActionsFailed": 0,
       "reputationscore": 100,
       "reputationScore": 100,
       "cooldownuntil": null,
       "cooldownUntil": null,
-      "lastactionat": null,
-      "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "lastactionat": "agent-in-0004",
+      "lastActionAt": "agent-in-0004",
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0005",
-      "agentidentifier": "bot_instagram_0005_4b85",
-      "agentIdentifier": "bot_instagram_0005_4b85",
+      "agentidentifier": "bot_instagram_0005_397b",
+      "agentIdentifier": "bot_instagram_0005_397b",
       "platform": "Instagram",
       "handle": "@ngozi_bello_prime217",
       "accountname": "Blessing Mustapha",
@@ -278,13 +266,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0006",
-      "agentidentifier": "bot_instagram_0006_e9fb",
-      "agentIdentifier": "bot_instagram_0006_e9fb",
+      "agentidentifier": "bot_instagram_0006_642d",
+      "agentIdentifier": "bot_instagram_0006_642d",
       "platform": "Instagram",
       "handle": "@amara_williams_hub243",
       "accountname": "Emeka Davies",
@@ -308,13 +296,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0007",
-      "agentidentifier": "bot_instagram_0007_8a13",
-      "agentIdentifier": "bot_instagram_0007_8a13",
+      "agentidentifier": "bot_instagram_0007_5577",
+      "agentIdentifier": "bot_instagram_0007_5577",
       "platform": "Instagram",
       "handle": "@kemi_mustapha_lifestyle269",
       "accountname": "Fatima Brown",
@@ -338,13 +326,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0008",
-      "agentidentifier": "bot_instagram_0008_6481",
-      "agentIdentifier": "bot_instagram_0008_6481",
+      "agentidentifier": "bot_instagram_0008_c2eb",
+      "agentIdentifier": "bot_instagram_0008_c2eb",
       "platform": "Instagram",
       "handle": "@amina_brown_pulse295",
       "accountname": "Olumide Okonkwo",
@@ -368,13 +356,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0009",
-      "agentidentifier": "bot_instagram_0009_45c7",
-      "agentIdentifier": "bot_instagram_0009_45c7",
+      "agentidentifier": "bot_instagram_0009_69b2",
+      "agentIdentifier": "bot_instagram_0009_69b2",
       "platform": "Instagram",
       "handle": "@sarah_bello_vibes321",
       "accountname": "Ngozi Bello",
@@ -398,13 +386,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0010",
-      "agentidentifier": "bot_instagram_0010_f7b3",
-      "agentIdentifier": "bot_instagram_0010_f7b3",
+      "agentidentifier": "bot_instagram_0010_ba95",
+      "agentIdentifier": "bot_instagram_0010_ba95",
       "platform": "Instagram",
       "handle": "@grace_williams_official347",
       "accountname": "Babajide Nwosu",
@@ -428,18 +416,18 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0011",
-      "agentidentifier": "bot_instagram_0011_ab9c",
-      "agentIdentifier": "bot_instagram_0011_ab9c",
+      "agentidentifier": "bot_instagram_0011_f8ed",
+      "agentIdentifier": "bot_instagram_0011_f8ed",
       "platform": "Instagram",
       "handle": "@joy_mustapha_shots373",
       "accountname": "Amara Williams",
       "accountName": "Amara Williams",
-      "status": "idle",
+      "status": "2026-09-17T21:18:14.169Z",
       "capabilities": [
         "follow",
         "like",
@@ -448,23 +436,23 @@
         "reaction",
         "comment"
       ],
-      "totalactionscompleted": 0,
-      "totalActionsCompleted": 0,
+      "totalactionscompleted": 1,
+      "totalActionsCompleted": 1,
       "totalactionsfailed": 0,
       "totalActionsFailed": 0,
       "reputationscore": 100,
       "reputationScore": 100,
       "cooldownuntil": null,
       "cooldownUntil": null,
-      "lastactionat": null,
-      "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "lastactionat": "2026-09-17T21:17:59.142Z",
+      "lastActionAt": "2026-09-17T21:17:59.142Z",
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0012",
-      "agentidentifier": "bot_instagram_0012_d556",
-      "agentIdentifier": "bot_instagram_0012_d556",
+      "agentidentifier": "bot_instagram_0012_8e19",
+      "agentIdentifier": "bot_instagram_0012_8e19",
       "platform": "Instagram",
       "handle": "@mary_brown_trends399",
       "accountname": "Tunde Suleiman",
@@ -488,13 +476,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0013",
-      "agentidentifier": "bot_instagram_0013_420d",
-      "agentIdentifier": "bot_instagram_0013_420d",
+      "agentidentifier": "bot_instagram_0013_1c13",
+      "agentIdentifier": "bot_instagram_0013_1c13",
       "platform": "Instagram",
       "handle": "@adebayo_bello_tech425",
       "accountname": "Kemi Mustapha",
@@ -518,13 +506,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0014",
-      "agentidentifier": "bot_instagram_0014_c866",
-      "agentIdentifier": "bot_instagram_0014_c866",
+      "agentidentifier": "bot_instagram_0014_3580",
+      "agentIdentifier": "bot_instagram_0014_3580",
       "platform": "Instagram",
       "handle": "@ibrahim_williams_explore451",
       "accountname": "Oluwaseun Davies",
@@ -548,13 +536,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0015",
-      "agentidentifier": "bot_instagram_0015_9fef",
-      "agentIdentifier": "bot_instagram_0015_9fef",
+      "agentidentifier": "bot_instagram_0015_53a1",
+      "agentIdentifier": "bot_instagram_0015_53a1",
       "platform": "Instagram",
       "handle": "@chinedu_mustapha_waves477",
       "accountname": "Amina Brown",
@@ -578,13 +566,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0016",
-      "agentidentifier": "bot_instagram_0016_e2e9",
-      "agentIdentifier": "bot_instagram_0016_e2e9",
+      "agentidentifier": "bot_instagram_0016_82f1",
+      "agentIdentifier": "bot_instagram_0016_82f1",
       "platform": "Instagram",
       "handle": "@emeka_brown_focus503",
       "accountname": "David Okonkwo",
@@ -608,13 +596,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0017",
-      "agentidentifier": "bot_instagram_0017_06a7",
-      "agentIdentifier": "bot_instagram_0017_06a7",
+      "agentidentifier": "bot_instagram_0017_e659",
+      "agentIdentifier": "bot_instagram_0017_e659",
       "platform": "Instagram",
       "handle": "@olumide_bello_media529",
       "accountname": "Sarah Bello",
@@ -638,13 +626,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0018",
-      "agentidentifier": "bot_instagram_0018_36ee",
-      "agentIdentifier": "bot_instagram_0018_36ee",
+      "agentidentifier": "bot_instagram_0018_3432",
+      "agentIdentifier": "bot_instagram_0018_3432",
       "platform": "Instagram",
       "handle": "@babajide_williams_reels555",
       "accountname": "Victor Nwosu",
@@ -668,13 +656,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0019",
-      "agentidentifier": "bot_instagram_0019_3b8d",
-      "agentIdentifier": "bot_instagram_0019_3b8d",
+      "agentidentifier": "bot_instagram_0019_d3dc",
+      "agentIdentifier": "bot_instagram_0019_d3dc",
       "platform": "Instagram",
       "handle": "@tunde_mustapha_creatives581",
       "accountname": "Grace Williams",
@@ -698,13 +686,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0020",
-      "agentidentifier": "bot_instagram_0020_3e81",
-      "agentIdentifier": "bot_instagram_0020_3e81",
+      "agentidentifier": "bot_instagram_0020_d295",
+      "agentIdentifier": "bot_instagram_0020_d295",
       "platform": "Instagram",
       "handle": "@oluwaseun_brown_daily607",
       "accountname": "Samuel Suleiman",
@@ -728,15 +716,15 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0001",
-      "agentidentifier": "bot_tiktok_0001_e6e7",
-      "agentIdentifier": "bot_tiktok_0001_e6e7",
+      "agentidentifier": "bot_tiktok_0001_5b25",
+      "agentIdentifier": "bot_tiktok_0001_5b25",
       "platform": "TikTok",
-      "handle": "@joy.mustapha.shots21",
+      "handle": "@joy.mustapha.shots",
       "accountname": "Chioma Bello",
       "accountName": "Chioma Bello",
       "status": "idle",
@@ -758,8 +746,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0021",
@@ -793,10 +781,10 @@
     },
     {
       "id": "agent-ti-0002",
-      "agentidentifier": "bot_tiktok_0002_5924",
-      "agentIdentifier": "bot_tiktok_0002_5924",
+      "agentidentifier": "bot_tiktok_0002_48dc",
+      "agentIdentifier": "bot_tiktok_0002_48dc",
       "platform": "TikTok",
-      "handle": "@mary.brown.trends23",
+      "handle": "@mary.brown.trends",
       "accountname": "Ibrahim Nwosu",
       "accountName": "Ibrahim Nwosu",
       "status": "idle",
@@ -818,8 +806,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0022",
@@ -853,10 +841,10 @@
     },
     {
       "id": "agent-ti-0003",
-      "agentidentifier": "bot_tiktok_0003_15bf",
-      "agentIdentifier": "bot_tiktok_0003_15bf",
+      "agentidentifier": "bot_tiktok_0003_c4cb",
+      "agentIdentifier": "bot_tiktok_0003_c4cb",
       "platform": "TikTok",
-      "handle": "@adebayo.bello.tech25",
+      "handle": "@adebayo.bello.tech",
       "accountname": "Zainab Williams",
       "accountName": "Zainab Williams",
       "status": "idle",
@@ -878,8 +866,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0023",
@@ -913,10 +901,10 @@
     },
     {
       "id": "agent-ti-0004",
-      "agentidentifier": "bot_tiktok_0004_01d8",
-      "agentIdentifier": "bot_tiktok_0004_01d8",
+      "agentidentifier": "bot_tiktok_0004_d3cd",
+      "agentIdentifier": "bot_tiktok_0004_d3cd",
       "platform": "TikTok",
-      "handle": "@ibrahim.williams.explore27",
+      "handle": "@ibrahim.williams.explore",
       "accountname": "Chinedu Suleiman",
       "accountName": "Chinedu Suleiman",
       "status": "idle",
@@ -938,8 +926,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0024",
@@ -973,10 +961,10 @@
     },
     {
       "id": "agent-ti-0005",
-      "agentidentifier": "bot_tiktok_0005_2d76",
-      "agentIdentifier": "bot_tiktok_0005_2d76",
+      "agentidentifier": "bot_tiktok_0005_652d",
+      "agentIdentifier": "bot_tiktok_0005_652d",
       "platform": "TikTok",
-      "handle": "@chinedu.mustapha.waves29",
+      "handle": "@chinedu.mustapha.waves",
       "accountname": "Blessing Mustapha",
       "accountName": "Blessing Mustapha",
       "status": "idle",
@@ -998,8 +986,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0025",
@@ -1033,10 +1021,10 @@
     },
     {
       "id": "agent-ti-0006",
-      "agentidentifier": "bot_tiktok_0006_f3e3",
-      "agentIdentifier": "bot_tiktok_0006_f3e3",
+      "agentidentifier": "bot_tiktok_0006_bf6d",
+      "agentIdentifier": "bot_tiktok_0006_bf6d",
       "platform": "TikTok",
-      "handle": "@emeka.brown.focus31",
+      "handle": "@emeka.brown.focus",
       "accountname": "Emeka Davies",
       "accountName": "Emeka Davies",
       "status": "idle",
@@ -1058,8 +1046,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0026",
@@ -1093,10 +1081,10 @@
     },
     {
       "id": "agent-ti-0007",
-      "agentidentifier": "bot_tiktok_0007_4d1e",
-      "agentIdentifier": "bot_tiktok_0007_4d1e",
+      "agentidentifier": "bot_tiktok_0007_521b",
+      "agentIdentifier": "bot_tiktok_0007_521b",
       "platform": "TikTok",
-      "handle": "@olumide.bello.media33",
+      "handle": "@olumide.bello.media",
       "accountname": "Fatima Brown",
       "accountName": "Fatima Brown",
       "status": "idle",
@@ -1118,8 +1106,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0027",
@@ -1153,10 +1141,10 @@
     },
     {
       "id": "agent-ti-0008",
-      "agentidentifier": "bot_tiktok_0008_e12d",
-      "agentIdentifier": "bot_tiktok_0008_e12d",
+      "agentidentifier": "bot_tiktok_0008_8f62",
+      "agentIdentifier": "bot_tiktok_0008_8f62",
       "platform": "TikTok",
-      "handle": "@babajide.williams.reels35",
+      "handle": "@babajide.williams.reels",
       "accountname": "Olumide Okonkwo",
       "accountName": "Olumide Okonkwo",
       "status": "idle",
@@ -1178,8 +1166,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0028",
@@ -1213,10 +1201,10 @@
     },
     {
       "id": "agent-ti-0009",
-      "agentidentifier": "bot_tiktok_0009_a6cc",
-      "agentIdentifier": "bot_tiktok_0009_a6cc",
+      "agentidentifier": "bot_tiktok_0009_f249",
+      "agentIdentifier": "bot_tiktok_0009_f249",
       "platform": "TikTok",
-      "handle": "@tunde.mustapha.creatives37",
+      "handle": "@tunde.mustapha.creatives",
       "accountname": "Ngozi Bello",
       "accountName": "Ngozi Bello",
       "status": "idle",
@@ -1238,8 +1226,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0029",
@@ -1273,10 +1261,10 @@
     },
     {
       "id": "agent-ti-0010",
-      "agentidentifier": "bot_tiktok_0010_c989",
-      "agentIdentifier": "bot_tiktok_0010_c989",
+      "agentidentifier": "bot_tiktok_0010_6841",
+      "agentIdentifier": "bot_tiktok_0010_6841",
       "platform": "TikTok",
-      "handle": "@oluwaseun.brown.daily39",
+      "handle": "@oluwaseun.brown.daily",
       "accountname": "Babajide Nwosu",
       "accountName": "Babajide Nwosu",
       "status": "idle",
@@ -1298,8 +1286,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0030",
@@ -1333,10 +1321,10 @@
     },
     {
       "id": "agent-ti-0011",
-      "agentidentifier": "bot_tiktok_0011_0cb5",
-      "agentIdentifier": "bot_tiktok_0011_0cb5",
+      "agentidentifier": "bot_tiktok_0011_2459",
+      "agentIdentifier": "bot_tiktok_0011_2459",
       "platform": "TikTok",
-      "handle": "@david.bello.zone41",
+      "handle": "@david.bello.zone",
       "accountname": "Amara Williams",
       "accountName": "Amara Williams",
       "status": "idle",
@@ -1358,8 +1346,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0031",
@@ -1393,10 +1381,10 @@
     },
     {
       "id": "agent-ti-0012",
-      "agentidentifier": "bot_tiktok_0012_5d13",
-      "agentIdentifier": "bot_tiktok_0012_5d13",
+      "agentidentifier": "bot_tiktok_0012_d81c",
+      "agentIdentifier": "bot_tiktok_0012_d81c",
       "platform": "TikTok",
-      "handle": "@victor.williams.prime43",
+      "handle": "@victor.williams.prime",
       "accountname": "Tunde Suleiman",
       "accountName": "Tunde Suleiman",
       "status": "idle",
@@ -1418,8 +1406,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0032",
@@ -1453,10 +1441,10 @@
     },
     {
       "id": "agent-ti-0013",
-      "agentidentifier": "bot_tiktok_0013_035e",
-      "agentIdentifier": "bot_tiktok_0013_035e",
+      "agentidentifier": "bot_tiktok_0013_86d1",
+      "agentIdentifier": "bot_tiktok_0013_86d1",
       "platform": "TikTok",
-      "handle": "@samuel.mustapha.hub45",
+      "handle": "@samuel.mustapha.hub",
       "accountname": "Kemi Mustapha",
       "accountName": "Kemi Mustapha",
       "status": "idle",
@@ -1478,8 +1466,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0033",
@@ -1513,10 +1501,10 @@
     },
     {
       "id": "agent-ti-0014",
-      "agentidentifier": "bot_tiktok_0014_c566",
-      "agentIdentifier": "bot_tiktok_0014_c566",
+      "agentidentifier": "bot_tiktok_0014_4ade",
+      "agentIdentifier": "bot_tiktok_0014_4ade",
       "platform": "TikTok",
-      "handle": "@daniel.brown.lifestyle47",
+      "handle": "@daniel.brown.lifestyle",
       "accountname": "Oluwaseun Davies",
       "accountName": "Oluwaseun Davies",
       "status": "idle",
@@ -1538,8 +1526,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0034",
@@ -1573,10 +1561,10 @@
     },
     {
       "id": "agent-ti-0015",
-      "agentidentifier": "bot_tiktok_0015_e1a7",
-      "agentIdentifier": "bot_tiktok_0015_e1a7",
+      "agentidentifier": "bot_tiktok_0015_2653",
+      "agentIdentifier": "bot_tiktok_0015_2653",
       "platform": "TikTok",
-      "handle": "@michael.bello.pulse49",
+      "handle": "@michael.bello.pulse",
       "accountname": "Amina Brown",
       "accountName": "Amina Brown",
       "status": "idle",
@@ -1598,8 +1586,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0035",
@@ -1633,10 +1621,10 @@
     },
     {
       "id": "agent-ti-0016",
-      "agentidentifier": "bot_tiktok_0016_64eb",
-      "agentIdentifier": "bot_tiktok_0016_64eb",
+      "agentidentifier": "bot_tiktok_0016_6603",
+      "agentIdentifier": "bot_tiktok_0016_6603",
       "platform": "TikTok",
-      "handle": "@chioma.williams.vibes51",
+      "handle": "@chioma.williams.vibes",
       "accountname": "David Okonkwo",
       "accountName": "David Okonkwo",
       "status": "idle",
@@ -1658,8 +1646,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0036",
@@ -1693,10 +1681,10 @@
     },
     {
       "id": "agent-ti-0017",
-      "agentidentifier": "bot_tiktok_0017_ba44",
-      "agentIdentifier": "bot_tiktok_0017_ba44",
+      "agentidentifier": "bot_tiktok_0017_5db7",
+      "agentIdentifier": "bot_tiktok_0017_5db7",
       "platform": "TikTok",
-      "handle": "@zainab.mustapha.official53",
+      "handle": "@zainab.mustapha.official",
       "accountname": "Sarah Bello",
       "accountName": "Sarah Bello",
       "status": "idle",
@@ -1718,8 +1706,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0037",
@@ -1753,10 +1741,10 @@
     },
     {
       "id": "agent-ti-0018",
-      "agentidentifier": "bot_tiktok_0018_05da",
-      "agentIdentifier": "bot_tiktok_0018_05da",
+      "agentidentifier": "bot_tiktok_0018_42a7",
+      "agentIdentifier": "bot_tiktok_0018_42a7",
       "platform": "TikTok",
-      "handle": "@blessing.brown.shots55",
+      "handle": "@blessing.brown.shots",
       "accountname": "Victor Nwosu",
       "accountName": "Victor Nwosu",
       "status": "idle",
@@ -1778,8 +1766,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0038",
@@ -1813,10 +1801,10 @@
     },
     {
       "id": "agent-ti-0019",
-      "agentidentifier": "bot_tiktok_0019_eb3a",
-      "agentIdentifier": "bot_tiktok_0019_eb3a",
+      "agentidentifier": "bot_tiktok_0019_a199",
+      "agentIdentifier": "bot_tiktok_0019_a199",
       "platform": "TikTok",
-      "handle": "@fatima.bello.trends57",
+      "handle": "@fatima.bello.trends",
       "accountname": "Grace Williams",
       "accountName": "Grace Williams",
       "status": "idle",
@@ -1838,8 +1826,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0039",
@@ -1873,10 +1861,10 @@
     },
     {
       "id": "agent-ti-0020",
-      "agentidentifier": "bot_tiktok_0020_5c36",
-      "agentIdentifier": "bot_tiktok_0020_5c36",
+      "agentidentifier": "bot_tiktok_0020_96e6",
+      "agentIdentifier": "bot_tiktok_0020_96e6",
       "platform": "TikTok",
-      "handle": "@ngozi.williams.tech59",
+      "handle": "@ngozi.williams.tech",
       "accountname": "Samuel Suleiman",
       "accountName": "Samuel Suleiman",
       "status": "idle",
@@ -1898,8 +1886,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0040",
@@ -1933,8 +1921,8 @@
     },
     {
       "id": "agent-yo-0001",
-      "agentidentifier": "bot_youtube_0001_d4f0",
-      "agentIdentifier": "bot_youtube_0001_d4f0",
+      "agentidentifier": "bot_youtube_0001_14e4",
+      "agentIdentifier": "bot_youtube_0001_14e4",
       "platform": "YouTube",
       "handle": "@davidbello633Channel",
       "accountname": "Chioma Bello",
@@ -1958,8 +1946,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0041",
@@ -1993,8 +1981,8 @@
     },
     {
       "id": "agent-yo-0002",
-      "agentidentifier": "bot_youtube_0002_ba6b",
-      "agentIdentifier": "bot_youtube_0002_ba6b",
+      "agentidentifier": "bot_youtube_0002_e46e",
+      "agentIdentifier": "bot_youtube_0002_e46e",
       "platform": "YouTube",
       "handle": "@victorwilliams659Channel",
       "accountname": "Ibrahim Nwosu",
@@ -2018,8 +2006,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0042",
@@ -2053,8 +2041,8 @@
     },
     {
       "id": "agent-yo-0003",
-      "agentidentifier": "bot_youtube_0003_c3f7",
-      "agentIdentifier": "bot_youtube_0003_c3f7",
+      "agentidentifier": "bot_youtube_0003_453e",
+      "agentIdentifier": "bot_youtube_0003_453e",
       "platform": "YouTube",
       "handle": "@samuelmustapha685Channel",
       "accountname": "Zainab Williams",
@@ -2078,8 +2066,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0043",
@@ -2113,8 +2101,8 @@
     },
     {
       "id": "agent-yo-0004",
-      "agentidentifier": "bot_youtube_0004_26b0",
-      "agentIdentifier": "bot_youtube_0004_26b0",
+      "agentidentifier": "bot_youtube_0004_02ba",
+      "agentIdentifier": "bot_youtube_0004_02ba",
       "platform": "YouTube",
       "handle": "@danielbrown711Channel",
       "accountname": "Chinedu Suleiman",
@@ -2138,8 +2126,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0044",
@@ -2173,8 +2161,8 @@
     },
     {
       "id": "agent-yo-0005",
-      "agentidentifier": "bot_youtube_0005_741e",
-      "agentIdentifier": "bot_youtube_0005_741e",
+      "agentidentifier": "bot_youtube_0005_ec39",
+      "agentIdentifier": "bot_youtube_0005_ec39",
       "platform": "YouTube",
       "handle": "@michaelbello737Channel",
       "accountname": "Blessing Mustapha",
@@ -2198,8 +2186,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0045",
@@ -2233,8 +2221,8 @@
     },
     {
       "id": "agent-yo-0006",
-      "agentidentifier": "bot_youtube_0006_c777",
-      "agentIdentifier": "bot_youtube_0006_c777",
+      "agentidentifier": "bot_youtube_0006_2204",
+      "agentIdentifier": "bot_youtube_0006_2204",
       "platform": "YouTube",
       "handle": "@chiomawilliams763Channel",
       "accountname": "Emeka Davies",
@@ -2258,8 +2246,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0046",
@@ -2293,8 +2281,8 @@
     },
     {
       "id": "agent-yo-0007",
-      "agentidentifier": "bot_youtube_0007_2279",
-      "agentIdentifier": "bot_youtube_0007_2279",
+      "agentidentifier": "bot_youtube_0007_a5d6",
+      "agentIdentifier": "bot_youtube_0007_a5d6",
       "platform": "YouTube",
       "handle": "@zainabmustapha789Channel",
       "accountname": "Fatima Brown",
@@ -2318,8 +2306,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0047",
@@ -2353,8 +2341,8 @@
     },
     {
       "id": "agent-yo-0008",
-      "agentidentifier": "bot_youtube_0008_e7da",
-      "agentIdentifier": "bot_youtube_0008_e7da",
+      "agentidentifier": "bot_youtube_0008_9617",
+      "agentIdentifier": "bot_youtube_0008_9617",
       "platform": "YouTube",
       "handle": "@blessingbrown815Channel",
       "accountname": "Olumide Okonkwo",
@@ -2378,8 +2366,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0048",
@@ -2413,8 +2401,8 @@
     },
     {
       "id": "agent-yo-0009",
-      "agentidentifier": "bot_youtube_0009_3a11",
-      "agentIdentifier": "bot_youtube_0009_3a11",
+      "agentidentifier": "bot_youtube_0009_4def",
+      "agentIdentifier": "bot_youtube_0009_4def",
       "platform": "YouTube",
       "handle": "@fatimabello841Channel",
       "accountname": "Ngozi Bello",
@@ -2438,8 +2426,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0049",
@@ -2473,8 +2461,8 @@
     },
     {
       "id": "agent-yo-0010",
-      "agentidentifier": "bot_youtube_0010_b0fb",
-      "agentIdentifier": "bot_youtube_0010_b0fb",
+      "agentidentifier": "bot_youtube_0010_5040",
+      "agentIdentifier": "bot_youtube_0010_5040",
       "platform": "YouTube",
       "handle": "@ngoziwilliams867Channel",
       "accountname": "Babajide Nwosu",
@@ -2498,8 +2486,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-in-0050",
@@ -2533,8 +2521,8 @@
     },
     {
       "id": "agent-yo-0011",
-      "agentidentifier": "bot_youtube_0011_8162",
-      "agentIdentifier": "bot_youtube_0011_8162",
+      "agentidentifier": "bot_youtube_0011_92bc",
+      "agentIdentifier": "bot_youtube_0011_92bc",
       "platform": "YouTube",
       "handle": "@amaramustapha893Channel",
       "accountname": "Amara Williams",
@@ -2558,13 +2546,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-yo-0012",
-      "agentidentifier": "bot_youtube_0012_08a4",
-      "agentIdentifier": "bot_youtube_0012_08a4",
+      "agentidentifier": "bot_youtube_0012_a695",
+      "agentIdentifier": "bot_youtube_0012_a695",
       "platform": "YouTube",
       "handle": "@kemibrown919Channel",
       "accountname": "Tunde Suleiman",
@@ -2588,13 +2576,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-yo-0013",
-      "agentidentifier": "bot_youtube_0013_c507",
-      "agentIdentifier": "bot_youtube_0013_c507",
+      "agentidentifier": "bot_youtube_0013_b4dc",
+      "agentIdentifier": "bot_youtube_0013_b4dc",
       "platform": "YouTube",
       "handle": "@aminabello945Channel",
       "accountname": "Kemi Mustapha",
@@ -2618,13 +2606,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-yo-0014",
-      "agentidentifier": "bot_youtube_0014_b975",
-      "agentIdentifier": "bot_youtube_0014_b975",
+      "agentidentifier": "bot_youtube_0014_e717",
+      "agentIdentifier": "bot_youtube_0014_e717",
       "platform": "YouTube",
       "handle": "@sarahwilliams971Channel",
       "accountname": "Oluwaseun Davies",
@@ -2648,13 +2636,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-yo-0015",
-      "agentidentifier": "bot_youtube_0015_c1a5",
-      "agentIdentifier": "bot_youtube_0015_c1a5",
+      "agentidentifier": "bot_youtube_0015_55ee",
+      "agentIdentifier": "bot_youtube_0015_55ee",
       "platform": "YouTube",
       "handle": "@gracemustapha997Channel",
       "accountname": "Amina Brown",
@@ -2678,13 +2666,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-yo-0016",
-      "agentidentifier": "bot_youtube_0016_6fa5",
-      "agentIdentifier": "bot_youtube_0016_6fa5",
+      "agentidentifier": "bot_youtube_0016_3ebe",
+      "agentIdentifier": "bot_youtube_0016_3ebe",
       "platform": "YouTube",
       "handle": "@joybrown123Channel",
       "accountname": "David Okonkwo",
@@ -2708,13 +2696,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-yo-0017",
-      "agentidentifier": "bot_youtube_0017_9d2b",
-      "agentIdentifier": "bot_youtube_0017_9d2b",
+      "agentidentifier": "bot_youtube_0017_15fb",
+      "agentIdentifier": "bot_youtube_0017_15fb",
       "platform": "YouTube",
       "handle": "@marybello149Channel",
       "accountname": "Sarah Bello",
@@ -2738,13 +2726,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-yo-0018",
-      "agentidentifier": "bot_youtube_0018_c155",
-      "agentIdentifier": "bot_youtube_0018_c155",
+      "agentidentifier": "bot_youtube_0018_ff94",
+      "agentIdentifier": "bot_youtube_0018_ff94",
       "platform": "YouTube",
       "handle": "@adebayowilliams175Channel",
       "accountname": "Victor Nwosu",
@@ -2768,13 +2756,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-yo-0019",
-      "agentidentifier": "bot_youtube_0019_c38c",
-      "agentIdentifier": "bot_youtube_0019_c38c",
+      "agentidentifier": "bot_youtube_0019_6261",
+      "agentIdentifier": "bot_youtube_0019_6261",
       "platform": "YouTube",
       "handle": "@ibrahimmustapha201Channel",
       "accountname": "Grace Williams",
@@ -2798,13 +2786,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-yo-0020",
-      "agentidentifier": "bot_youtube_0020_87d9",
-      "agentIdentifier": "bot_youtube_0020_87d9",
+      "agentidentifier": "bot_youtube_0020_0d89",
+      "agentIdentifier": "bot_youtube_0020_0d89",
       "platform": "YouTube",
       "handle": "@chinedubrown227Channel",
       "accountname": "Samuel Suleiman",
@@ -2828,13 +2816,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-fa-0001",
-      "agentidentifier": "bot_facebook_0001_35ba",
-      "agentIdentifier": "bot_facebook_0001_35ba",
+      "agentidentifier": "bot_facebook_0001_e7c9",
+      "agentIdentifier": "bot_facebook_0001_e7c9",
       "platform": "Facebook",
       "handle": "@amara.mustapha.893",
       "accountname": "Chioma Bello",
@@ -2857,13 +2845,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-fa-0002",
-      "agentidentifier": "bot_facebook_0002_08c3",
-      "agentIdentifier": "bot_facebook_0002_08c3",
+      "agentidentifier": "bot_facebook_0002_df5c",
+      "agentIdentifier": "bot_facebook_0002_df5c",
       "platform": "Facebook",
       "handle": "@kemi.brown.919",
       "accountname": "Ibrahim Nwosu",
@@ -2886,13 +2874,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-fa-0003",
-      "agentidentifier": "bot_facebook_0003_cd98",
-      "agentIdentifier": "bot_facebook_0003_cd98",
+      "agentidentifier": "bot_facebook_0003_6cd5",
+      "agentIdentifier": "bot_facebook_0003_6cd5",
       "platform": "Facebook",
       "handle": "@amina.bello.945",
       "accountname": "Zainab Williams",
@@ -2915,13 +2903,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-fa-0004",
-      "agentidentifier": "bot_facebook_0004_01dc",
-      "agentIdentifier": "bot_facebook_0004_01dc",
+      "agentidentifier": "bot_facebook_0004_dda7",
+      "agentIdentifier": "bot_facebook_0004_dda7",
       "platform": "Facebook",
       "handle": "@sarah.williams.971",
       "accountname": "Chinedu Suleiman",
@@ -2944,13 +2932,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-fa-0005",
-      "agentidentifier": "bot_facebook_0005_da50",
-      "agentIdentifier": "bot_facebook_0005_da50",
+      "agentidentifier": "bot_facebook_0005_5378",
+      "agentIdentifier": "bot_facebook_0005_5378",
       "platform": "Facebook",
       "handle": "@grace.mustapha.997",
       "accountname": "Blessing Mustapha",
@@ -2973,13 +2961,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-fa-0006",
-      "agentidentifier": "bot_facebook_0006_b8f5",
-      "agentIdentifier": "bot_facebook_0006_b8f5",
+      "agentidentifier": "bot_facebook_0006_d348",
+      "agentIdentifier": "bot_facebook_0006_d348",
       "platform": "Facebook",
       "handle": "@joy.brown.123",
       "accountname": "Emeka Davies",
@@ -3002,13 +2990,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-fa-0007",
-      "agentidentifier": "bot_facebook_0007_1dcb",
-      "agentIdentifier": "bot_facebook_0007_1dcb",
+      "agentidentifier": "bot_facebook_0007_2661",
+      "agentIdentifier": "bot_facebook_0007_2661",
       "platform": "Facebook",
       "handle": "@mary.bello.149",
       "accountname": "Fatima Brown",
@@ -3031,13 +3019,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-fa-0008",
-      "agentidentifier": "bot_facebook_0008_9997",
-      "agentIdentifier": "bot_facebook_0008_9997",
+      "agentidentifier": "bot_facebook_0008_cf08",
+      "agentIdentifier": "bot_facebook_0008_cf08",
       "platform": "Facebook",
       "handle": "@adebayo.williams.175",
       "accountname": "Olumide Okonkwo",
@@ -3060,13 +3048,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-fa-0009",
-      "agentidentifier": "bot_facebook_0009_df15",
-      "agentIdentifier": "bot_facebook_0009_df15",
+      "agentidentifier": "bot_facebook_0009_4da1",
+      "agentIdentifier": "bot_facebook_0009_4da1",
       "platform": "Facebook",
       "handle": "@ibrahim.mustapha.201",
       "accountname": "Ngozi Bello",
@@ -3089,13 +3077,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-fa-0010",
-      "agentidentifier": "bot_facebook_0010_ed32",
-      "agentIdentifier": "bot_facebook_0010_ed32",
+      "agentidentifier": "bot_facebook_0010_7984",
+      "agentIdentifier": "bot_facebook_0010_7984",
       "platform": "Facebook",
       "handle": "@chinedu.brown.227",
       "accountname": "Babajide Nwosu",
@@ -3118,13 +3106,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-fa-0011",
-      "agentidentifier": "bot_facebook_0011_130e",
-      "agentIdentifier": "bot_facebook_0011_130e",
+      "agentidentifier": "bot_facebook_0011_9946",
+      "agentIdentifier": "bot_facebook_0011_9946",
       "platform": "Facebook",
       "handle": "@emeka.bello.253",
       "accountname": "Amara Williams",
@@ -3147,8 +3135,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0021",
@@ -3182,8 +3170,8 @@
     },
     {
       "id": "agent-fa-0012",
-      "agentidentifier": "bot_facebook_0012_3885",
-      "agentIdentifier": "bot_facebook_0012_3885",
+      "agentidentifier": "bot_facebook_0012_e570",
+      "agentIdentifier": "bot_facebook_0012_e570",
       "platform": "Facebook",
       "handle": "@olumide.williams.279",
       "accountname": "Tunde Suleiman",
@@ -3206,8 +3194,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0022",
@@ -3241,8 +3229,8 @@
     },
     {
       "id": "agent-fa-0013",
-      "agentidentifier": "bot_facebook_0013_ef44",
-      "agentIdentifier": "bot_facebook_0013_ef44",
+      "agentidentifier": "bot_facebook_0013_f9e3",
+      "agentIdentifier": "bot_facebook_0013_f9e3",
       "platform": "Facebook",
       "handle": "@babajide.mustapha.305",
       "accountname": "Kemi Mustapha",
@@ -3265,8 +3253,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0023",
@@ -3300,8 +3288,8 @@
     },
     {
       "id": "agent-fa-0014",
-      "agentidentifier": "bot_facebook_0014_9277",
-      "agentIdentifier": "bot_facebook_0014_9277",
+      "agentidentifier": "bot_facebook_0014_d652",
+      "agentIdentifier": "bot_facebook_0014_d652",
       "platform": "Facebook",
       "handle": "@tunde.brown.331",
       "accountname": "Oluwaseun Davies",
@@ -3324,8 +3312,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0024",
@@ -3359,8 +3347,8 @@
     },
     {
       "id": "agent-fa-0015",
-      "agentidentifier": "bot_facebook_0015_3bc0",
-      "agentIdentifier": "bot_facebook_0015_3bc0",
+      "agentidentifier": "bot_facebook_0015_c050",
+      "agentIdentifier": "bot_facebook_0015_c050",
       "platform": "Facebook",
       "handle": "@oluwaseun.bello.357",
       "accountname": "Amina Brown",
@@ -3383,8 +3371,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0025",
@@ -3418,8 +3406,8 @@
     },
     {
       "id": "agent-fa-0016",
-      "agentidentifier": "bot_facebook_0016_a077",
-      "agentIdentifier": "bot_facebook_0016_a077",
+      "agentidentifier": "bot_facebook_0016_c4f8",
+      "agentIdentifier": "bot_facebook_0016_c4f8",
       "platform": "Facebook",
       "handle": "@david.williams.383",
       "accountname": "David Okonkwo",
@@ -3442,8 +3430,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0026",
@@ -3477,8 +3465,8 @@
     },
     {
       "id": "agent-fa-0017",
-      "agentidentifier": "bot_facebook_0017_79be",
-      "agentIdentifier": "bot_facebook_0017_79be",
+      "agentidentifier": "bot_facebook_0017_5af5",
+      "agentIdentifier": "bot_facebook_0017_5af5",
       "platform": "Facebook",
       "handle": "@victor.mustapha.409",
       "accountname": "Sarah Bello",
@@ -3501,8 +3489,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0027",
@@ -3536,8 +3524,8 @@
     },
     {
       "id": "agent-fa-0018",
-      "agentidentifier": "bot_facebook_0018_9139",
-      "agentIdentifier": "bot_facebook_0018_9139",
+      "agentidentifier": "bot_facebook_0018_816f",
+      "agentIdentifier": "bot_facebook_0018_816f",
       "platform": "Facebook",
       "handle": "@samuel.brown.435",
       "accountname": "Victor Nwosu",
@@ -3560,8 +3548,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0028",
@@ -3595,8 +3583,8 @@
     },
     {
       "id": "agent-fa-0019",
-      "agentidentifier": "bot_facebook_0019_6571",
-      "agentIdentifier": "bot_facebook_0019_6571",
+      "agentidentifier": "bot_facebook_0019_e418",
+      "agentIdentifier": "bot_facebook_0019_e418",
       "platform": "Facebook",
       "handle": "@daniel.bello.461",
       "accountname": "Grace Williams",
@@ -3619,8 +3607,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0029",
@@ -3654,8 +3642,8 @@
     },
     {
       "id": "agent-fa-0020",
-      "agentidentifier": "bot_facebook_0020_811b",
-      "agentIdentifier": "bot_facebook_0020_811b",
+      "agentidentifier": "bot_facebook_0020_9d2d",
+      "agentIdentifier": "bot_facebook_0020_9d2d",
       "platform": "Facebook",
       "handle": "@michael.williams.487",
       "accountname": "Samuel Suleiman",
@@ -3678,8 +3666,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0030",
@@ -3713,8 +3701,8 @@
     },
     {
       "id": "agent-x-0001",
-      "agentidentifier": "bot_x_0001_3556",
-      "agentIdentifier": "bot_x_0001_3556",
+      "agentidentifier": "bot_x_0001_f8bf",
+      "agentIdentifier": "bot_x_0001_f8bf",
       "platform": "X",
       "handle": "@emeka_lifestyle253",
       "accountname": "Chioma Bello",
@@ -3737,8 +3725,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0031",
@@ -3772,8 +3760,8 @@
     },
     {
       "id": "agent-x-0002",
-      "agentidentifier": "bot_x_0002_f110",
-      "agentIdentifier": "bot_x_0002_f110",
+      "agentidentifier": "bot_x_0002_efae",
+      "agentIdentifier": "bot_x_0002_efae",
       "platform": "X",
       "handle": "@olumide_pulse279",
       "accountname": "Ibrahim Nwosu",
@@ -3796,8 +3784,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0032",
@@ -3831,8 +3819,8 @@
     },
     {
       "id": "agent-x-0003",
-      "agentidentifier": "bot_x_0003_9ed4",
-      "agentIdentifier": "bot_x_0003_9ed4",
+      "agentidentifier": "bot_x_0003_1c86",
+      "agentIdentifier": "bot_x_0003_1c86",
       "platform": "X",
       "handle": "@babajide_vibes305",
       "accountname": "Zainab Williams",
@@ -3855,8 +3843,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0033",
@@ -3890,8 +3878,8 @@
     },
     {
       "id": "agent-x-0004",
-      "agentidentifier": "bot_x_0004_e6dc",
-      "agentIdentifier": "bot_x_0004_e6dc",
+      "agentidentifier": "bot_x_0004_da89",
+      "agentIdentifier": "bot_x_0004_da89",
       "platform": "X",
       "handle": "@tunde_official331",
       "accountname": "Chinedu Suleiman",
@@ -3914,8 +3902,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0034",
@@ -3949,8 +3937,8 @@
     },
     {
       "id": "agent-x-0005",
-      "agentidentifier": "bot_x_0005_8ed0",
-      "agentIdentifier": "bot_x_0005_8ed0",
+      "agentidentifier": "bot_x_0005_c5fc",
+      "agentIdentifier": "bot_x_0005_c5fc",
       "platform": "X",
       "handle": "@oluwaseun_shots357",
       "accountname": "Blessing Mustapha",
@@ -3973,8 +3961,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0035",
@@ -4008,8 +3996,8 @@
     },
     {
       "id": "agent-x-0006",
-      "agentidentifier": "bot_x_0006_de1d",
-      "agentIdentifier": "bot_x_0006_de1d",
+      "agentidentifier": "bot_x_0006_d4e9",
+      "agentIdentifier": "bot_x_0006_d4e9",
       "platform": "X",
       "handle": "@david_trends383",
       "accountname": "Emeka Davies",
@@ -4032,8 +4020,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0036",
@@ -4067,8 +4055,8 @@
     },
     {
       "id": "agent-x-0007",
-      "agentidentifier": "bot_x_0007_d1bc",
-      "agentIdentifier": "bot_x_0007_d1bc",
+      "agentidentifier": "bot_x_0007_b7a9",
+      "agentIdentifier": "bot_x_0007_b7a9",
       "platform": "X",
       "handle": "@victor_tech409",
       "accountname": "Fatima Brown",
@@ -4091,8 +4079,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0037",
@@ -4126,8 +4114,8 @@
     },
     {
       "id": "agent-x-0008",
-      "agentidentifier": "bot_x_0008_7839",
-      "agentIdentifier": "bot_x_0008_7839",
+      "agentidentifier": "bot_x_0008_c009",
+      "agentIdentifier": "bot_x_0008_c009",
       "platform": "X",
       "handle": "@samuel_explore435",
       "accountname": "Olumide Okonkwo",
@@ -4150,8 +4138,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0038",
@@ -4185,8 +4173,8 @@
     },
     {
       "id": "agent-x-0009",
-      "agentidentifier": "bot_x_0009_67e5",
-      "agentIdentifier": "bot_x_0009_67e5",
+      "agentidentifier": "bot_x_0009_02bb",
+      "agentIdentifier": "bot_x_0009_02bb",
       "platform": "X",
       "handle": "@daniel_waves461",
       "accountname": "Ngozi Bello",
@@ -4209,8 +4197,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0039",
@@ -4244,8 +4232,8 @@
     },
     {
       "id": "agent-x-0010",
-      "agentidentifier": "bot_x_0010_c76d",
-      "agentIdentifier": "bot_x_0010_c76d",
+      "agentidentifier": "bot_x_0010_dd96",
+      "agentIdentifier": "bot_x_0010_dd96",
       "platform": "X",
       "handle": "@michael_focus487",
       "accountname": "Babajide Nwosu",
@@ -4268,8 +4256,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0040",
@@ -4303,8 +4291,8 @@
     },
     {
       "id": "agent-x-0011",
-      "agentidentifier": "bot_x_0011_d703",
-      "agentIdentifier": "bot_x_0011_d703",
+      "agentidentifier": "bot_x_0011_bbf8",
+      "agentIdentifier": "bot_x_0011_bbf8",
       "platform": "X",
       "handle": "@chioma_media513",
       "accountname": "Amara Williams",
@@ -4327,8 +4315,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0041",
@@ -4362,8 +4350,8 @@
     },
     {
       "id": "agent-x-0012",
-      "agentidentifier": "bot_x_0012_8b15",
-      "agentIdentifier": "bot_x_0012_8b15",
+      "agentidentifier": "bot_x_0012_4493",
+      "agentIdentifier": "bot_x_0012_4493",
       "platform": "X",
       "handle": "@zainab_reels539",
       "accountname": "Tunde Suleiman",
@@ -4386,8 +4374,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0042",
@@ -4421,8 +4409,8 @@
     },
     {
       "id": "agent-x-0013",
-      "agentidentifier": "bot_x_0013_ee31",
-      "agentIdentifier": "bot_x_0013_ee31",
+      "agentidentifier": "bot_x_0013_6a66",
+      "agentIdentifier": "bot_x_0013_6a66",
       "platform": "X",
       "handle": "@blessing_creatives565",
       "accountname": "Kemi Mustapha",
@@ -4445,8 +4433,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0043",
@@ -4480,8 +4468,8 @@
     },
     {
       "id": "agent-x-0014",
-      "agentidentifier": "bot_x_0014_1520",
-      "agentIdentifier": "bot_x_0014_1520",
+      "agentidentifier": "bot_x_0014_248a",
+      "agentIdentifier": "bot_x_0014_248a",
       "platform": "X",
       "handle": "@fatima_daily591",
       "accountname": "Oluwaseun Davies",
@@ -4504,8 +4492,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0044",
@@ -4539,8 +4527,8 @@
     },
     {
       "id": "agent-x-0015",
-      "agentidentifier": "bot_x_0015_9883",
-      "agentIdentifier": "bot_x_0015_9883",
+      "agentidentifier": "bot_x_0015_0647",
+      "agentIdentifier": "bot_x_0015_0647",
       "platform": "X",
       "handle": "@ngozi_zone617",
       "accountname": "Amina Brown",
@@ -4563,8 +4551,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0045",
@@ -4598,8 +4586,8 @@
     },
     {
       "id": "agent-x-0016",
-      "agentidentifier": "bot_x_0016_8f3c",
-      "agentIdentifier": "bot_x_0016_8f3c",
+      "agentidentifier": "bot_x_0016_864f",
+      "agentIdentifier": "bot_x_0016_864f",
       "platform": "X",
       "handle": "@amara_prime643",
       "accountname": "David Okonkwo",
@@ -4622,8 +4610,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0046",
@@ -4657,8 +4645,8 @@
     },
     {
       "id": "agent-x-0017",
-      "agentidentifier": "bot_x_0017_c824",
-      "agentIdentifier": "bot_x_0017_c824",
+      "agentidentifier": "bot_x_0017_8876",
+      "agentIdentifier": "bot_x_0017_8876",
       "platform": "X",
       "handle": "@kemi_hub669",
       "accountname": "Sarah Bello",
@@ -4681,8 +4669,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0047",
@@ -4716,8 +4704,8 @@
     },
     {
       "id": "agent-x-0018",
-      "agentidentifier": "bot_x_0018_4939",
-      "agentIdentifier": "bot_x_0018_4939",
+      "agentidentifier": "bot_x_0018_e283",
+      "agentIdentifier": "bot_x_0018_e283",
       "platform": "X",
       "handle": "@amina_lifestyle695",
       "accountname": "Victor Nwosu",
@@ -4740,8 +4728,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0048",
@@ -4775,8 +4763,8 @@
     },
     {
       "id": "agent-x-0019",
-      "agentidentifier": "bot_x_0019_2f1f",
-      "agentIdentifier": "bot_x_0019_2f1f",
+      "agentidentifier": "bot_x_0019_d845",
+      "agentIdentifier": "bot_x_0019_d845",
       "platform": "X",
       "handle": "@sarah_pulse721",
       "accountname": "Grace Williams",
@@ -4799,8 +4787,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0049",
@@ -4834,8 +4822,8 @@
     },
     {
       "id": "agent-x-0020",
-      "agentidentifier": "bot_x_0020_3ea0",
-      "agentIdentifier": "bot_x_0020_3ea0",
+      "agentidentifier": "bot_x_0020_ddbe",
+      "agentIdentifier": "bot_x_0020_ddbe",
       "platform": "X",
       "handle": "@grace_vibes747",
       "accountname": "Samuel Suleiman",
@@ -4858,8 +4846,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-ti-0050",
@@ -4893,8 +4881,8 @@
     },
     {
       "id": "agent-te-0001",
-      "agentidentifier": "bot_telegram_0001_8d82",
-      "agentIdentifier": "bot_telegram_0001_8d82",
+      "agentidentifier": "bot_telegram_0001_cada",
+      "agentIdentifier": "bot_telegram_0001_cada",
       "platform": "Telegram",
       "handle": "@tg_chioma_513",
       "accountname": "Chioma Bello",
@@ -4918,13 +4906,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0002",
-      "agentidentifier": "bot_telegram_0002_931b",
-      "agentIdentifier": "bot_telegram_0002_931b",
+      "agentidentifier": "bot_telegram_0002_6a2d",
+      "agentIdentifier": "bot_telegram_0002_6a2d",
       "platform": "Telegram",
       "handle": "@tg_zainab_539",
       "accountname": "Ibrahim Nwosu",
@@ -4948,13 +4936,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0003",
-      "agentidentifier": "bot_telegram_0003_c0a6",
-      "agentIdentifier": "bot_telegram_0003_c0a6",
+      "agentidentifier": "bot_telegram_0003_33e0",
+      "agentIdentifier": "bot_telegram_0003_33e0",
       "platform": "Telegram",
       "handle": "@tg_blessing_565",
       "accountname": "Zainab Williams",
@@ -4978,13 +4966,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0004",
-      "agentidentifier": "bot_telegram_0004_9a75",
-      "agentIdentifier": "bot_telegram_0004_9a75",
+      "agentidentifier": "bot_telegram_0004_e7df",
+      "agentIdentifier": "bot_telegram_0004_e7df",
       "platform": "Telegram",
       "handle": "@tg_fatima_591",
       "accountname": "Chinedu Suleiman",
@@ -5008,13 +4996,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0005",
-      "agentidentifier": "bot_telegram_0005_a2b8",
-      "agentIdentifier": "bot_telegram_0005_a2b8",
+      "agentidentifier": "bot_telegram_0005_2d2c",
+      "agentIdentifier": "bot_telegram_0005_2d2c",
       "platform": "Telegram",
       "handle": "@tg_ngozi_617",
       "accountname": "Blessing Mustapha",
@@ -5038,13 +5026,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0006",
-      "agentidentifier": "bot_telegram_0006_ed14",
-      "agentIdentifier": "bot_telegram_0006_ed14",
+      "agentidentifier": "bot_telegram_0006_4b63",
+      "agentIdentifier": "bot_telegram_0006_4b63",
       "platform": "Telegram",
       "handle": "@tg_amara_643",
       "accountname": "Emeka Davies",
@@ -5068,13 +5056,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0007",
-      "agentidentifier": "bot_telegram_0007_aed4",
-      "agentIdentifier": "bot_telegram_0007_aed4",
+      "agentidentifier": "bot_telegram_0007_6824",
+      "agentIdentifier": "bot_telegram_0007_6824",
       "platform": "Telegram",
       "handle": "@tg_kemi_669",
       "accountname": "Fatima Brown",
@@ -5098,13 +5086,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0008",
-      "agentidentifier": "bot_telegram_0008_835c",
-      "agentIdentifier": "bot_telegram_0008_835c",
+      "agentidentifier": "bot_telegram_0008_ea18",
+      "agentIdentifier": "bot_telegram_0008_ea18",
       "platform": "Telegram",
       "handle": "@tg_amina_695",
       "accountname": "Olumide Okonkwo",
@@ -5128,13 +5116,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0009",
-      "agentidentifier": "bot_telegram_0009_1644",
-      "agentIdentifier": "bot_telegram_0009_1644",
+      "agentidentifier": "bot_telegram_0009_a736",
+      "agentIdentifier": "bot_telegram_0009_a736",
       "platform": "Telegram",
       "handle": "@tg_sarah_721",
       "accountname": "Ngozi Bello",
@@ -5158,13 +5146,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0010",
-      "agentidentifier": "bot_telegram_0010_43c5",
-      "agentIdentifier": "bot_telegram_0010_43c5",
+      "agentidentifier": "bot_telegram_0010_ff60",
+      "agentIdentifier": "bot_telegram_0010_ff60",
       "platform": "Telegram",
       "handle": "@tg_grace_747",
       "accountname": "Babajide Nwosu",
@@ -5188,13 +5176,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0011",
-      "agentidentifier": "bot_telegram_0011_2c56",
-      "agentIdentifier": "bot_telegram_0011_2c56",
+      "agentidentifier": "bot_telegram_0011_f3ca",
+      "agentIdentifier": "bot_telegram_0011_f3ca",
       "platform": "Telegram",
       "handle": "@tg_joy_773",
       "accountname": "Amara Williams",
@@ -5218,13 +5206,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0012",
-      "agentidentifier": "bot_telegram_0012_106c",
-      "agentIdentifier": "bot_telegram_0012_106c",
+      "agentidentifier": "bot_telegram_0012_8b26",
+      "agentIdentifier": "bot_telegram_0012_8b26",
       "platform": "Telegram",
       "handle": "@tg_mary_799",
       "accountname": "Tunde Suleiman",
@@ -5248,13 +5236,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0013",
-      "agentidentifier": "bot_telegram_0013_38c6",
-      "agentIdentifier": "bot_telegram_0013_38c6",
+      "agentidentifier": "bot_telegram_0013_425c",
+      "agentIdentifier": "bot_telegram_0013_425c",
       "platform": "Telegram",
       "handle": "@tg_adebayo_825",
       "accountname": "Kemi Mustapha",
@@ -5278,13 +5266,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0014",
-      "agentidentifier": "bot_telegram_0014_3df7",
-      "agentIdentifier": "bot_telegram_0014_3df7",
+      "agentidentifier": "bot_telegram_0014_9c0d",
+      "agentIdentifier": "bot_telegram_0014_9c0d",
       "platform": "Telegram",
       "handle": "@tg_ibrahim_851",
       "accountname": "Oluwaseun Davies",
@@ -5308,13 +5296,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0015",
-      "agentidentifier": "bot_telegram_0015_bf01",
-      "agentIdentifier": "bot_telegram_0015_bf01",
+      "agentidentifier": "bot_telegram_0015_93a6",
+      "agentIdentifier": "bot_telegram_0015_93a6",
       "platform": "Telegram",
       "handle": "@tg_chinedu_877",
       "accountname": "Amina Brown",
@@ -5338,13 +5326,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0016",
-      "agentidentifier": "bot_telegram_0016_0730",
-      "agentIdentifier": "bot_telegram_0016_0730",
+      "agentidentifier": "bot_telegram_0016_9aad",
+      "agentIdentifier": "bot_telegram_0016_9aad",
       "platform": "Telegram",
       "handle": "@tg_emeka_903",
       "accountname": "David Okonkwo",
@@ -5368,13 +5356,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0017",
-      "agentidentifier": "bot_telegram_0017_c290",
-      "agentIdentifier": "bot_telegram_0017_c290",
+      "agentidentifier": "bot_telegram_0017_18b9",
+      "agentIdentifier": "bot_telegram_0017_18b9",
       "platform": "Telegram",
       "handle": "@tg_olumide_929",
       "accountname": "Sarah Bello",
@@ -5398,13 +5386,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0018",
-      "agentidentifier": "bot_telegram_0018_d5a1",
-      "agentIdentifier": "bot_telegram_0018_d5a1",
+      "agentidentifier": "bot_telegram_0018_a5cc",
+      "agentIdentifier": "bot_telegram_0018_a5cc",
       "platform": "Telegram",
       "handle": "@tg_babajide_955",
       "accountname": "Victor Nwosu",
@@ -5428,13 +5416,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0019",
-      "agentidentifier": "bot_telegram_0019_9189",
-      "agentIdentifier": "bot_telegram_0019_9189",
+      "agentidentifier": "bot_telegram_0019_9d7e",
+      "agentIdentifier": "bot_telegram_0019_9d7e",
       "platform": "Telegram",
       "handle": "@tg_tunde_981",
       "accountname": "Grace Williams",
@@ -5458,13 +5446,13 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-te-0020",
-      "agentidentifier": "bot_telegram_0020_75f2",
-      "agentIdentifier": "bot_telegram_0020_75f2",
+      "agentidentifier": "bot_telegram_0020_f8b2",
+      "agentIdentifier": "bot_telegram_0020_f8b2",
       "platform": "Telegram",
       "handle": "@tg_oluwaseun_107",
       "accountname": "Samuel Suleiman",
@@ -5488,8 +5476,8 @@
       "cooldownUntil": null,
       "lastactionat": null,
       "lastActionAt": null,
-      "createdat": "2026-09-19T06:27:48.360Z",
-      "createdAt": "2026-09-19T06:27:48.360Z"
+      "createdat": "2026-09-17T21:16:34.933Z",
+      "createdAt": "2026-09-17T21:16:34.933Z"
     },
     {
       "id": "agent-yo-0021",
@@ -9051,12 +9039,12 @@
       "status": "completed",
       "startedat": 3,
       "startedAt": 3,
-      "completedat": "2026-09-19T06:27:52.370Z",
-      "completedAt": "2026-09-19T06:27:52.370Z",
+      "completedat": "2026-09-17T21:17:59.349Z",
+      "completedAt": "2026-09-17T21:17:59.349Z",
       "createdat": 3,
       "createdAt": 3,
-      "updatedat": "2026-09-19T06:27:52.370Z",
-      "updatedAt": "2026-09-19T06:27:52.370Z"
+      "updatedat": "2026-09-17T21:17:59.349Z",
+      "updatedAt": "2026-09-17T21:17:59.349Z"
     },
     {
       "id": "job-1789679727709",
@@ -9076,12 +9064,12 @@
       "status": "completed",
       "startedat": 3,
       "startedAt": 3,
-      "completedat": "2026-09-19T06:27:52.381Z",
-      "completedAt": "2026-09-19T06:27:52.381Z",
+      "completedat": "2026-09-17T21:17:59.366Z",
+      "completedAt": "2026-09-17T21:17:59.366Z",
       "createdat": 3,
       "createdAt": 3,
-      "updatedat": "2026-09-19T06:27:52.381Z",
-      "updatedAt": "2026-09-19T06:27:52.381Z"
+      "updatedat": "2026-09-17T21:17:59.366Z",
+      "updatedAt": "2026-09-17T21:17:59.366Z"
     },
     {
       "id": "job-1789679801436",
@@ -9101,12 +9089,12 @@
       "status": "completed",
       "startedat": 3,
       "startedAt": 3,
-      "completedat": "2026-09-19T06:27:52.394Z",
-      "completedAt": "2026-09-19T06:27:52.394Z",
+      "completedat": "2026-09-17T21:17:59.385Z",
+      "completedAt": "2026-09-17T21:17:59.385Z",
       "createdat": 3,
       "createdAt": 3,
-      "updatedat": "2026-09-19T06:27:52.394Z",
-      "updatedAt": "2026-09-19T06:27:52.394Z"
+      "updatedat": "2026-09-17T21:17:59.385Z",
+      "updatedAt": "2026-09-17T21:17:59.385Z"
     },
     {
       "id": "job-1789679809529",
@@ -9126,12 +9114,12 @@
       "status": "completed",
       "startedat": 2,
       "startedAt": 2,
-      "completedat": "2026-09-19T06:27:52.405Z",
-      "completedAt": "2026-09-19T06:27:52.405Z",
+      "completedat": "2026-09-17T21:17:59.403Z",
+      "completedAt": "2026-09-17T21:17:59.403Z",
       "createdat": 2,
       "createdAt": 2,
-      "updatedat": "2026-09-19T06:27:52.405Z",
-      "updatedAt": "2026-09-19T06:27:52.405Z"
+      "updatedat": "2026-09-17T21:17:59.403Z",
+      "updatedAt": "2026-09-17T21:17:59.403Z"
     },
     {
       "id": "job-1789679822647",
@@ -9151,12 +9139,12 @@
       "status": "completed",
       "startedat": 2,
       "startedAt": 2,
-      "completedat": "2026-09-19T06:27:52.419Z",
-      "completedAt": "2026-09-19T06:27:52.419Z",
+      "completedat": "2026-09-17T21:17:59.420Z",
+      "completedAt": "2026-09-17T21:17:59.420Z",
       "createdat": 2,
       "createdAt": 2,
-      "updatedat": "2026-09-19T06:27:52.419Z",
-      "updatedAt": "2026-09-19T06:27:52.419Z"
+      "updatedat": "2026-09-17T21:17:59.420Z",
+      "updatedAt": "2026-09-17T21:17:59.420Z"
     },
     {
       "id": "job-1789679839983",
@@ -9176,12 +9164,12 @@
       "status": "completed",
       "startedat": "2026-09-17T21:17:19.983Z",
       "startedAt": "2026-09-17T21:17:19.983Z",
-      "completedat": "2026-09-19T06:27:52.432Z",
-      "completedAt": "2026-09-19T06:27:52.432Z",
+      "completedat": "2026-09-17T21:17:59.433Z",
+      "completedAt": "2026-09-17T21:17:59.433Z",
       "createdat": "2026-09-17T21:17:19.983Z",
       "createdAt": "2026-09-17T21:17:19.983Z",
-      "updatedat": "2026-09-19T06:27:52.432Z",
-      "updatedAt": "2026-09-19T06:27:52.432Z"
+      "updatedat": "2026-09-17T21:17:59.433Z",
+      "updatedAt": "2026-09-17T21:17:59.433Z"
     },
     {
       "id": "job-1789679852134",
@@ -9201,12 +9189,12 @@
       "status": "completed",
       "startedat": null,
       "startedAt": null,
-      "completedat": "2026-09-19T06:27:52.443Z",
-      "completedAt": "2026-09-19T06:27:52.443Z",
+      "completedat": "2026-09-17T21:17:59.444Z",
+      "completedAt": "2026-09-17T21:17:59.444Z",
       "createdat": "2026-09-17T21:17:32.154Z",
       "createdAt": "2026-09-17T21:17:32.154Z",
-      "updatedat": "2026-09-19T06:27:52.443Z",
-      "updatedAt": "2026-09-19T06:27:52.443Z"
+      "updatedat": "2026-09-17T21:17:59.444Z",
+      "updatedAt": "2026-09-17T21:17:59.444Z"
     },
     {
       "id": "job-1789679862984",
@@ -9226,12 +9214,12 @@
       "status": "completed",
       "startedat": null,
       "startedAt": null,
-      "completedat": "2026-09-19T06:27:52.455Z",
-      "completedAt": "2026-09-19T06:27:52.455Z",
+      "completedat": "2026-09-17T21:17:59.455Z",
+      "completedAt": "2026-09-17T21:17:59.455Z",
       "createdat": "2026-09-17T21:17:42.991Z",
       "createdAt": "2026-09-17T21:17:42.991Z",
-      "updatedat": "2026-09-19T06:27:52.455Z",
-      "updatedAt": "2026-09-19T06:27:52.455Z"
+      "updatedat": "2026-09-17T21:17:59.455Z",
+      "updatedAt": "2026-09-17T21:17:59.455Z"
     },
     {
       "id": "job-1789679868118",
@@ -9251,12 +9239,12 @@
       "status": "completed",
       "startedat": null,
       "startedAt": null,
-      "completedat": "2026-09-19T06:27:52.467Z",
-      "completedAt": "2026-09-19T06:27:52.467Z",
+      "completedat": "2026-09-17T21:17:59.467Z",
+      "completedAt": "2026-09-17T21:17:59.467Z",
       "createdat": "2026-09-17T21:17:48.125Z",
       "createdAt": "2026-09-17T21:17:48.125Z",
-      "updatedat": "2026-09-19T06:27:52.467Z",
-      "updatedAt": "2026-09-19T06:27:52.467Z"
+      "updatedat": "2026-09-17T21:17:59.467Z",
+      "updatedAt": "2026-09-17T21:17:59.467Z"
     },
     {
       "id": "job-1789679879010",
@@ -9273,15 +9261,15 @@
       "completedQuantity": 2,
       "claimedquantity": 0,
       "claimedQuantity": 0,
-      "status": "completed",
+      "status": "2026-09-17T21:17:59.497Z",
       "startedat": "2026-09-17T21:17:59.010Z",
       "startedAt": "2026-09-17T21:17:59.010Z",
-      "completedat": "2026-09-19T06:27:52.478Z",
-      "completedAt": "2026-09-19T06:27:52.478Z",
+      "completedat": "2026-09-17T21:17:59.161Z",
+      "completedAt": "2026-09-17T21:17:59.161Z",
       "createdat": "2026-09-17T21:17:59.010Z",
       "createdAt": "2026-09-17T21:17:59.010Z",
-      "updatedat": "2026-09-19T06:27:52.478Z",
-      "updatedAt": "2026-09-19T06:27:52.478Z"
+      "updatedat": "2026-09-17T21:17:59.513Z",
+      "updatedAt": "2026-09-17T21:17:59.513Z"
     }
   ],
   "agent_task_executions": [

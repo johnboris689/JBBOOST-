@@ -25,6 +25,25 @@ const ai = new GoogleGenAI({
 });
 
 const app = express();
+
+// Free virtual-number simulation. This is intentionally not a telecom provider and never
+// claims to receive real carrier SMS. Real inventory can be connected later through a
+// lawful telecom/SMPP/HTTP provider without changing the customer-facing API.
+type DemoNumber = { id: string; userEmail: string; country: string; countryName: string; number: string; type: string; status: string; messages: any[] };
+const demoNumbers: DemoNumber[] = [];
+const demoCountries = [
+  { code: 'NG', name: 'Nigeria', dialCode: '+234', flag: '🇳🇬' },
+  { code: 'US', name: 'United States', dialCode: '+1', flag: '🇺🇸' },
+  { code: 'GB', name: 'United Kingdom', dialCode: '+44', flag: '🇬🇧' },
+  { code: 'CA', name: 'Canada', dialCode: '+1', flag: '🇨🇦' },
+  { code: 'DE', name: 'Germany', dialCode: '+49', flag: '🇩🇪' },
+  { code: 'FR', name: 'France', dialCode: '+33', flag: '🇫🇷' },
+  { code: 'ZA', name: 'South Africa', dialCode: '+27', flag: '🇿🇦' },
+  { code: 'GH', name: 'Ghana', dialCode: '+233', flag: '🇬🇭' },
+  { code: 'KE', name: 'Kenya', dialCode: '+254', flag: '🇰🇪' },
+  { code: 'IN', name: 'India', dialCode: '+91', flag: '🇮🇳' },
+];
+
 const PORT = Number(process.env.PORT) || 10000;
 const DB_FILE = path.join(process.cwd(), 'nevo_db.json');
 
@@ -5689,6 +5708,32 @@ async function reconcilePendingKorapayDeposits() {
     paymentReconcileRunning = false;
   }
 }
+
+app.get('/api/virtual-numbers/countries', (_req, res) => { res.json(demoCountries); });
+
+app.get('/api/virtual-numbers', authenticateToken, (req: any, res) => {
+  const email = String(req.userEmail).toLowerCase();
+  res.json(demoNumbers.filter(n => n.userEmail === email));
+});
+
+app.post('/api/virtual-numbers/allocate', authenticateToken, (req: any, res) => {
+  const email = String(req.userEmail).toLowerCase();
+  const country = demoCountries.find(c => c.code === String(req.body?.country || 'NG').toUpperCase()) || demoCountries[0];
+  const suffix = String(Math.floor(1000000 + Math.random() * 8999999));
+  const number = `${country.dialCode}${suffix}`;
+  const item: DemoNumber = { id: crypto.randomUUID(), userEmail: email, country: country.code, countryName: country.name, number, type: 'Demo SMS', status: 'simulation', messages: [] };
+  demoNumbers.unshift(item);
+  res.json(item);
+});
+
+app.post('/api/virtual-numbers/simulate-sms', authenticateToken, (req: any, res) => {
+  const email = String(req.userEmail).toLowerCase();
+  const item = demoNumbers.find(n => n.id === String(req.body?.numberId) && n.userEmail === email);
+  if (!item) return res.status(404).json({ error: 'Demo number not found.' });
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  item.messages.unshift({ id: crypto.randomUUID(), sender: 'JB Boster Test', body: `Your JB Boster test code is ${code}. This is simulated SMS only.`, createdAt: new Date().toISOString() });
+  res.json(item);
+});
 
 app.get('/api/health', (_req, res) => {
   res.status(200).json({

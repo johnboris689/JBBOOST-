@@ -92,6 +92,11 @@ async function request<T>(endpoint: string, options: RequestInit = {}, isAdmin: 
 }
 
 export const api = {
+  // --- Virtual Numbers (free simulation mode) ---
+  getVirtualNumberCountries: () => request<any[]>('/api/virtual-numbers/countries'),
+  getVirtualNumbers: () => request<any[]>('/api/virtual-numbers'),
+  allocateVirtualNumber: (payload: { country: string }) => request<any>('/api/virtual-numbers/allocate', { method: 'POST', body: JSON.stringify(payload) }),
+  simulateVirtualSms: (numberId: string) => request<any>('/api/virtual-numbers/simulate-sms', { method: 'POST', body: JSON.stringify({ numberId }) }),
   // --- Public ---
   getSettings: () => request<SiteSettings>('/api/settings'),
   getBankDetails: () => request<BankDetails>('/api/bank-details'),
